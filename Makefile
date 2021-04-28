@@ -17,7 +17,7 @@ test:
 	$(DOCKER_RUN) go test -race -timeout 60s $(shell go list ./... )
 
 build:
-	$(DOCKER_RUN) CGO_ENABLED=0 go build -ldflags $(LDFLAGS) -o build/gimlet github.com/gimlet-io/gimlet-stack/cmd
+	$(DOCKER_RUN) CGO_ENABLED=0 go build -ldflags $(LDFLAGS) -o build/stack github.com/gimlet-io/gimlet-stack/cmd
 
 dist:
 	mkdir -p bin

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gimlet-io/gimlet-stack/commands"
 	"github.com/urfave/cli/v2"
 	"os"
 
@@ -16,6 +17,7 @@ func main() {
 		Usage:                "bootstrap curated Kubernetes stacks",
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{
+			&commands.BootstrapCmd,
 		},
 	}
 	err := app.Run(os.Args)
