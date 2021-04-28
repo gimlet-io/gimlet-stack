@@ -1,0 +1,45 @@
+name: Build
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 5
+
+    - id: get_version
+      uses: battila7/get-version-action@v2
+
+    - name: Version is sha or tag
+      id: sha_or_tag
+      run: |
+        if [[ $VERSION == refs/heads/* ]]
+        then
+            echo "::set-output name=version::$GITHUB_SHA"
+        fi
+      env:
+        VERSION: ${{ steps.get_version.outputs.version-without-v }}
+
+    - name: Test
+      run: make test
+
+    - name: Build
+      run: make build
+      env:
+        VERSION: ${{ steps.sha_or_tag.outputs.version }}
