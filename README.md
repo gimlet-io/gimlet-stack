@@ -17,6 +17,12 @@ Logging, metrics, ingress and more - delivered with gitops.
 - Multiple curators: unlike 1clickinfra.com, Gimlet Stack should support many curators. You can pick who you trust and take their stack.
 This repo contains the delivery engine, not the stacks.
 
+## Proposed design and end-user experience
+
+![116536445-37ad1800-a8e5-11eb-86d1-35ba24212686](https://user-images.githubusercontent.com/4289031/116878101-22a2f280-ac1f-11eb-97de-9b20122df67a.png)
+
+https://github.com/gimlet-io/gimlet-stack/issues/3#issuecomment-829115374
+
 ## Community
 
 Gimlet Stack is developed in the open.
