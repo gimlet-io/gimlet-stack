@@ -18,6 +18,7 @@ func main() {
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{
 			&commands.BootstrapCmd,
+			&commands.GenerateCmd,
 		},
 	}
 	err := app.Run(os.Args)

@@ -3,9 +3,11 @@ module github.com/gimlet-io/gimlet-stack
 go 1.16
 
 require (
+	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
 	github.com/enescakir/emoji v1.0.0
 	github.com/gimlet-io/gimlet-cli v0.8.0-rc1.0.20210428134552-eff0760ce3f3
 	github.com/go-git/go-git/v5 v5.3.0 // indirect
+	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0
 )
 
