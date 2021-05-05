@@ -7,3 +7,11 @@ bin
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+
+web/node_modules
+web/dist
+
+commands/bundle.js
+commands/bundle.js.LICENSE.txt
+commands/index.html
