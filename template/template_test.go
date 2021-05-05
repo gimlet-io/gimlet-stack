@@ -57,7 +57,8 @@ func Test_UnspecifiedVarsComparison(t *testing.T) {
 }
 
 func Test_cloneStackFromRepo(t *testing.T) {
-	files, err := cloneStackFromRepo("git@github.com:gimlet-io/gimlet-stack-reference.git?sha=538af1fdb42fea6da80fad4c2e406ab836351f35")
+	//files, err := cloneStackFromRepo("git@github.com:gimlet-io/gimlet-stack-reference.git?sha=538af1fdb42fea6da80fad4c2e406ab836351f35")
+	files, err := cloneStackFromRepo("https://github.com/gimlet-io/gimlet-stack-reference.git?sha=538af1fdb42fea6da80fad4c2e406ab836351f35")
 	assert.Nil(t, err)
 	assert.Equal(t, 25, len(files))
 }
@@ -65,7 +66,7 @@ func Test_cloneStackFromRepo(t *testing.T) {
 func Test_GenerateFromStackYaml(t *testing.T) {
 	stackConfigYaml := `
 stack:
-  repository: "git@github.com:gimlet-io/gimlet-stack-reference.git?sha=a1697387fec2ed1d6b4bc427734715860ad89035"
+  repository: "https://github.com/gimlet-io/gimlet-stack-reference.git?sha=a1697387fec2ed1d6b4bc427734715860ad89035"
 config:
   nginx:
     enabled: true
