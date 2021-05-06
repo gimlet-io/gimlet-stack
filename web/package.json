@@ -32,7 +32,7 @@
     "@graywolfai/react-heroicons": "^1.1.1",
     "@tailwindcss/ui": "^0.7.2",
     "and": "0.0.3",
-    "helm-react-ui": "github:gimlet-io/helm-react-ui#master",
+    "helm-react-ui": "file:../../helm-react-ui",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "tailwindcss": "^1.9.6"

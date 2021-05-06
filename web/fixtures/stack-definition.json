@@ -4,6 +4,7 @@
   "components": [
     {
       "name": "Nginx",
+      "variable": "nginx",
       "description": "",
       "onePager": "",
       "schema": {
@@ -46,6 +47,7 @@
     },
     {
       "name": "Loki",
+      "variable": "loki",
       "description": "",
       "onePager": "",
       "schema": {

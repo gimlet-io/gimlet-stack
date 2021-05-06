@@ -1,7 +1,5 @@
-import React, { Component } from 'react'
-import { hot } from 'react-hot-loader'
-import * as schemaFixture from '../fixtures/onechart/values.schema.json'
-import * as helmUIConfigFixture from '../fixtures/onechart/helm-ui.json'
+import React, {Component} from 'react'
+import {hot} from 'react-hot-loader'
 import * as stackDefinitionFixture from '../fixtures/stack-definition.json'
 
 import HelmUI from 'helm-react-ui'
@@ -10,7 +8,7 @@ import StreamingBackend from './streamingBackend'
 import GimletCLIClient from './client'
 
 class App extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
 
     const client = new GimletCLIClient()
@@ -22,12 +20,12 @@ class App extends Component {
     this.state = {
       client: client,
       stack: {},
-      nonDefaultValues: {},
+      stackNonDefaultValues: {},
     }
     this.setValues = this.setValues.bind(this)
   }
 
-  componentDidMount () {
+  componentDidMount() {
     fetch('/stack-definition.json')
       .then(response => {
         if (!response.ok && window !== undefined) {
@@ -36,7 +34,7 @@ class App extends Component {
         }
         return response.json()
       })
-      .then(data => this.setState({ stackDefinition: data }))
+      .then(data => this.setState({stackDefinition: data}))
 
     // fetch('/values.schema.json')
     //   .then(response => {
@@ -56,18 +54,23 @@ class App extends Component {
         }
         return response.json()
       })
-      .then(data => this.setState({ stack: data }))
+      .then(data => this.setState({stack: data}))
   }
 
-  setValues (values, nonDefaultValues) {
-    this.setState({ values: values, nonDefaultValues: nonDefaultValues })
-    this.state.client.saveValues(nonDefaultValues)
+  setValues(variable, values, nonDefaultValues) {
+    this.setState({
+      stack: {
+        [variable]: values
+      },
+      stackNonDefaultValues: {
+        [variable]: nonDefaultValues
+      }
+    })
+    //this.state.client.saveValues(nonDefaultValues)
   }
 
-  render () {
-    let { stackDefinition, stack } = this.state
-
-    console.log(stackDefinition);
+  render() {
+    let {stackDefinition, stack} = this.state
 
     if (stackDefinition === undefined || stack === undefined) {
       return null;
@@ -82,8 +85,8 @@ class App extends Component {
               type="button"
               className="cursor-default inline-flex items-center px-6 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-gray-600 transition ease-in-out duration-150"
               onClick={() => {
-                console.log(this.state.values)
-                console.log(this.state.nonDefaultValues)
+                console.log(this.state.stack)
+                console.log(this.state.stackNonDefaultValues)
               }}
             >
               Close the browser when you are done, the values will be printed on the console
@@ -92,14 +95,27 @@ class App extends Component {
         </div>
         {
           stackDefinition.components.map(c => {
+            let componentValues = stack[c.variable];
+            if (componentValues === undefined) {
+              componentValues = {}
+            }
+            let componentSaver = function(values, nonDefaultValues) {
+              this.setValues(c.variable, values, nonDefaultValues)
+            }.bind(this);
+
             return (
-              <div className="container mx-auto m-8">
-                <HelmUI
-                  schema={c.schema}
-                  config={c.uiSchema}
-                  values={stack}
-                  setValues={this.setValues}
-                />
+              <div className="container mx-auto m-8 max-w-xl">
+                <h2>{c.name}</h2>
+                <div className="shadow sm:rounded-md sm:overflow-hidden">
+                  <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
+                    <HelmUI
+                      schema={c.schema}
+                      config={c.uiSchema}
+                      values={componentValues}
+                      setValues={componentSaver}
+                    />
+                  </div>
+                </div>
               </div>
             )
           })
