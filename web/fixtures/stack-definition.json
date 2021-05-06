@@ -1,10 +1,21 @@
 {
   "name": "Gimlet Stack Reference",
   "description": "Providing a reference stack to demonstrate Gimlet Stack",
+  "categories": [
+    {
+      "name": "⬅️Ingress",
+      "id": "ingress"
+    },
+    {
+      "name": "\uD83D\uDCD1 Logging",
+      "id": "logging"
+    }
+  ],
   "components": [
     {
       "name": "Nginx",
       "variable": "nginx",
+      "category": "ingress",
       "description": "",
       "onePager": "",
       "schema": {
@@ -48,6 +59,7 @@
     {
       "name": "Loki",
       "variable": "loki",
+      "category": "logging",
       "description": "",
       "onePager": "",
       "schema": {

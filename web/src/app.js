@@ -58,14 +58,16 @@ class App extends Component {
   }
 
   setValues(variable, values, nonDefaultValues) {
-    this.setState({
+    this.setState(prevState => ({
       stack: {
+        ...prevState.stack,
         [variable]: values
       },
       stackNonDefaultValues: {
+        ...prevState.stackNonDefaultValues,
         [variable]: nonDefaultValues
       }
-    })
+    }))
     //this.state.client.saveValues(nonDefaultValues)
   }
 
@@ -75,6 +77,8 @@ class App extends Component {
     if (stackDefinition === undefined || stack === undefined) {
       return null;
     }
+
+    const genericComponentSaver = this.setValues;
 
     return (
       <div>
@@ -94,28 +98,39 @@ class App extends Component {
           </span>
         </div>
         {
-          stackDefinition.components.map(c => {
-            let componentValues = stack[c.variable];
-            if (componentValues === undefined) {
-              componentValues = {}
-            }
-            let componentSaver = function(values, nonDefaultValues) {
-              this.setValues(c.variable, values, nonDefaultValues)
-            }.bind(this);
+          stackDefinition.categories.map(category => {
+            const componentsForCategory = stackDefinition.components.filter(component => component.category === category.id);
+
+            const componentList = componentsForCategory.map(component => {
+              let componentValues = stack[component.variable];
+              if (componentValues === undefined) {
+                componentValues = {}
+              }
+              let componentSaver = function(values, nonDefaultValues) {
+                genericComponentSaver(component.variable, values, nonDefaultValues)
+              };
+
+              return (
+                <div>
+                  <h3>{component.name}</h3>
+                  <div className="shadow sm:rounded-md sm:overflow-hidden">
+                    <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
+                      <HelmUI
+                        schema={component.schema}
+                        config={component.uiSchema}
+                        values={componentValues}
+                        setValues={componentSaver}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            })
 
             return (
               <div className="container mx-auto m-8 max-w-xl">
-                <h2>{c.name}</h2>
-                <div className="shadow sm:rounded-md sm:overflow-hidden">
-                  <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
-                    <HelmUI
-                      schema={c.schema}
-                      config={c.uiSchema}
-                      values={componentValues}
-                      setValues={componentSaver}
-                    />
-                  </div>
-                </div>
+                <h2>{category.name}</h2>
+                <div>{componentList}</div>
               </div>
             )
           })
