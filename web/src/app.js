@@ -21,8 +21,10 @@ class App extends Component {
       client: client,
       stack: {},
       stackNonDefaultValues: {},
+      toggleState: {},
     }
     this.setValues = this.setValues.bind(this)
+    this.toggleComponent = this.toggleComponent.bind(this)
   }
 
   componentDidMount() {
@@ -71,14 +73,25 @@ class App extends Component {
     //this.state.client.saveValues(nonDefaultValues)
   }
 
+  toggleComponent(category, component) {
+    console.log("toggling " + category + " " + component)
+    this.setState(prevState => ({
+      toggleState: {
+        ...prevState.toggleState,
+        [category]: prevState.toggleState[category] == component ? undefined : component
+      }
+    }))
+  }
+
   render() {
-    let {stackDefinition, stack} = this.state
+    let {stackDefinition, stack, toggleState} = this.state
 
     if (stackDefinition === undefined || stack === undefined) {
       return null;
     }
 
     const genericComponentSaver = this.setValues;
+    const toggleComponentHandler = this.toggleComponent;
 
     return (
       <div>
@@ -101,36 +114,57 @@ class App extends Component {
           stackDefinition.categories.map(category => {
             const componentsForCategory = stackDefinition.components.filter(component => component.category === category.id);
 
-            const componentList = componentsForCategory.map(component => {
-              let componentValues = stack[component.variable];
-              if (componentValues === undefined) {
-                componentValues = {}
-              }
-              let componentSaver = function(values, nonDefaultValues) {
-                genericComponentSaver(component.variable, values, nonDefaultValues)
-              };
-
+            const componentTitles = componentsForCategory.map(component => {
               return (
-                <div>
-                  <h3>{component.name}</h3>
-                  <div className="shadow sm:rounded-md sm:overflow-hidden">
-                    <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
-                      <HelmUI
-                        schema={component.schema}
-                        config={component.uiSchema}
-                        values={componentValues}
-                        setValues={componentSaver}
-                      />
-                    </div>
+                <div onClick={() => toggleComponentHandler(category.id, component.variable)}>
+                  <div className="w-32 h-32 px-2 overflow-hidden bg-gray-100 hover:bg-gray-300 cursor-pointer filter-grayscale hover:filter-none">
+                    <img className="h-20 mx-auto pt-4" src={component.logo} alt={component.name}/>
+                    <div className="font-bold text-sm py-2 text-center">{component.name}</div>
                   </div>
                 </div>
               )
             })
 
+            let selectedComponent = undefined;
+            let selectedComponentConfig = undefined;
+            let componentSaver = undefined;
+            const selectedComponentName = toggleState[category.id];
+            if (selectedComponentName !== undefined) {
+              const selectedComponentArray = stackDefinition.components.filter(component => component.variable === toggleState[category.id]);
+              selectedComponent = selectedComponentArray[0];
+              selectedComponentConfig = stack[selectedComponent.variable];
+              if (selectedComponentConfig === undefined) {
+                selectedComponentConfig = {}
+              }
+              componentSaver = function(values, nonDefaultValues) {
+                genericComponentSaver(selectedComponent.variable, values, nonDefaultValues)
+              };
+            }
+
+            const componentConfigPanel = selectedComponentName === undefined ? null : (
+              <div>
+                <div className="shadow sm:rounded-md sm:overflow-hidden">
+                  <div className="bg-white py-6 px-4 space-y-6 sm:p-6">
+                    <HelmUI
+                      schema={selectedComponent.schema}
+                      config={selectedComponent.uiSchema}
+                      values={selectedComponentConfig}
+                      setValues={componentSaver}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+
             return (
-              <div className="container mx-auto m-8 max-w-xl">
+              <div className="container mx-auto m-8 max-w-4xl">
                 <h2>{category.name}</h2>
-                <div>{componentList}</div>
+                <div className="flex space-x-2">
+                  {componentTitles}
+                </div>
+                <div className="my-2">
+                  {componentConfigPanel}
+                </div>
               </div>
             )
           })

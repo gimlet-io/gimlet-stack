@@ -16,6 +16,7 @@
       "name": "Nginx",
       "variable": "nginx",
       "category": "ingress",
+      "logo": "https://raw.githubusercontent.com/gimlet-io/gimlet-stack-reference/main/assets/nginx.png",
       "description": "",
       "onePager": "",
       "schema": {
@@ -49,10 +50,49 @@
             "#/properties/host"
           ],
           "uiSchema": {},
-          "metaData": {
-            "name": "Basics",
-            "icon": "M17 8l4 4m0 0l-4 4m4-4H3"
+          "metaData": {}
+        }
+      ]
+    },
+    {
+      "name": "CertManager",
+      "variable": "certManager",
+      "category": "ingress",
+      "logo": "https://raw.githubusercontent.com/gimlet-io/gimlet-stack-reference/main/assets/certManager.png",
+      "description": "",
+      "onePager": "",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema",
+        "$id": "http://example.com/example.json",
+        "type": "object",
+        "title": "The root schema",
+        "description": "The root schema comprises the entire JSON document.",
+        "properties": {
+          "enabled": {
+            "$id": "#/properties/enabled",
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "host": {
+            "$id": "#/properties/email",
+            "type": "string",
+            "title": "Administrator email",
+            "description": "Let's Encrypt will email you on this email upon expiring certificates",
+            "default": "",
+            "examples": [
+              "admin@mycompany.com"
+            ]
           }
+        }
+      },
+      "uiSchema": [
+        {
+          "schemaIDs": [
+            "#/properties/enabled",
+            "#/properties/email"
+          ],
+          "uiSchema": {},
+          "metaData": {}
         }
       ]
     },
@@ -60,6 +100,7 @@
       "name": "Loki",
       "variable": "loki",
       "category": "logging",
+      "logo": "https://raw.githubusercontent.com/gimlet-io/gimlet-stack-reference/main/assets/loki.png",
       "description": "",
       "onePager": "",
       "schema": {
@@ -82,10 +123,7 @@
             "#/properties/enabled"
           ],
           "uiSchema": {},
-          "metaData": {
-            "name": "Basics",
-            "icon": "M17 8l4 4m0 0l-4 4m4-4H3"
-          }
+          "metaData": {}
         }
       ]
     }
