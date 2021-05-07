@@ -6,6 +6,7 @@ import HelmUI from 'helm-react-ui'
 import './style.css'
 import StreamingBackend from './streamingBackend'
 import GimletCLIClient from './client'
+import {Tile} from "./tile";
 
 class App extends Component {
   constructor(props) {
@@ -60,6 +61,7 @@ class App extends Component {
   }
 
   setValues(variable, values, nonDefaultValues) {
+    console.log(values)
     this.setState(prevState => ({
       stack: {
         ...prevState.stack,
@@ -130,20 +132,14 @@ class App extends Component {
 
             const componentsForCategory = stackDefinition.components.filter(component => component.category === category.id);
             const componentTitles = componentsForCategory.map(component => {
-              const selected = component.variable === selectedComponentName;
-              const componentConfig = stack[component.variable] !== undefined ? stack[component.variable] : {}
-              const enabled = componentConfig.enabled
-              const selectedOrEnabled = selected || enabled;
-
               return (
-                <div onClick={() => toggleComponentHandler(category.id, component.variable)}>
-                  <div className="w-32 h-32 px-2 overflow-hidden cursor-pointer">
-                    <div className={!selectedOrEnabled ? 'bg-gray-100 hover:bg-gray-300 filter grayscale hover:grayscale-0' : 'bg-gray-300'}>
-                      <img className="h-20 mx-auto pt-4" src={component.logo} alt={component.name}/>
-                      <div className="font-bold text-sm py-2 text-center">{component.name}</div>
-                    </div>
-                  </div>
-                </div>
+                <Tile
+                  category={category}
+                  component={component}
+                  componentConfig={stack[component.variable]}
+                  selectedComponentName={selectedComponentName}
+                  toggleComponentHandler={toggleComponentHandler}
+                />
               )
             })
 
