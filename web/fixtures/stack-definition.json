@@ -73,7 +73,7 @@
             "type": "boolean",
             "title": "Enabled"
           },
-          "host": {
+          "email": {
             "$id": "#/properties/email",
             "type": "string",
             "title": "Administrator email",

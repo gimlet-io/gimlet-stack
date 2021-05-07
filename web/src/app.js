@@ -131,7 +131,8 @@ class App extends Component {
             const componentsForCategory = stackDefinition.components.filter(component => component.category === category.id);
             const componentTitles = componentsForCategory.map(component => {
               const selected = component.variable === selectedComponentName;
-              const enabled = selectedComponent === undefined ? undefined : selected && selectedComponentConfig.enabled
+              const componentConfig = stack[component.variable] !== undefined ? stack[component.variable] : {}
+              const enabled = componentConfig.enabled
               const selectedOrEnabled = selected || enabled;
 
               return (
