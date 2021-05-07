@@ -112,19 +112,6 @@ class App extends Component {
         </div>
         {
           stackDefinition.categories.map(category => {
-            const componentsForCategory = stackDefinition.components.filter(component => component.category === category.id);
-
-            const componentTitles = componentsForCategory.map(component => {
-              return (
-                <div onClick={() => toggleComponentHandler(category.id, component.variable)}>
-                  <div className="w-32 h-32 px-2 overflow-hidden bg-gray-100 hover:bg-gray-300 cursor-pointer filter-grayscale hover:filter-none">
-                    <img className="h-20 mx-auto pt-4" src={component.logo} alt={component.name}/>
-                    <div className="font-bold text-sm py-2 text-center">{component.name}</div>
-                  </div>
-                </div>
-              )
-            })
-
             let selectedComponent = undefined;
             let selectedComponentConfig = undefined;
             let componentSaver = undefined;
@@ -140,6 +127,24 @@ class App extends Component {
                 genericComponentSaver(selectedComponent.variable, values, nonDefaultValues)
               };
             }
+
+            const componentsForCategory = stackDefinition.components.filter(component => component.category === category.id);
+            const componentTitles = componentsForCategory.map(component => {
+              const selected = component.variable === selectedComponentName;
+              const enabled = selectedComponent === undefined ? undefined : selected && selectedComponentConfig.enabled
+              const selectedOrEnabled = selected || enabled;
+
+              return (
+                <div onClick={() => toggleComponentHandler(category.id, component.variable)}>
+                  <div className="w-32 h-32 px-2 overflow-hidden cursor-pointer">
+                    <div className={!selectedOrEnabled ? 'bg-gray-100 hover:bg-gray-300 filter grayscale hover:grayscale-0' : 'bg-gray-300'}>
+                      <img className="h-20 mx-auto pt-4" src={component.logo} alt={component.name}/>
+                      <div className="font-bold text-sm py-2 text-center">{component.name}</div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
 
             const componentConfigPanel = selectedComponentName === undefined ? null : (
               <div>

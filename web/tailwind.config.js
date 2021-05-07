@@ -18,7 +18,11 @@ module.exports = {
       },
     },
   },
-  variants: {},
+  variants: {
+    extend: {
+      grayscale: ['hover'],
+    }
+  },
   plugins: [
     require('@tailwindcss/ui'),
   ]

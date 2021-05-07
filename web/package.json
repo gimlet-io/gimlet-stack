@@ -20,7 +20,7 @@
     "copy-webpack-plugin": "^6.3.1",
     "css-loader": "^1.0.0",
     "jest": "^26.6.3",
-    "postcss": "^8.1.4",
+    "postcss": "^8.2.14",
     "postcss-loader": "^4.0.4",
     "react-hot-loader": "^4.3.11",
     "style-loader": "^0.23.0",
@@ -32,10 +32,11 @@
     "@graywolfai/react-heroicons": "^1.1.1",
     "@tailwindcss/ui": "^0.7.2",
     "and": "0.0.3",
+    "autoprefixer": "^10.2.5",
     "helm-react-ui": "file:../../helm-react-ui",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
-    "tailwindcss": "^1.9.6"
+    "tailwindcss": "^2.1.2"
   },
   "jest": {
     "moduleDirectories": [
