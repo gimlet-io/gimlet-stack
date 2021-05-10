@@ -31,7 +31,6 @@ export class Category extends Component {
   }
 
   switchTab(component, tab) {
-    console.log("switching " + component + " " + tab)
     this.setState(prevState => ({
       tabState: {
         ...prevState.tabState,
@@ -68,6 +67,7 @@ export class Category extends Component {
     }
 
     const componentsForCategory = stackDefinition.components.filter(component => component.category === category.id);
+    console.log(componentsForCategory)
     const componentTitles = componentsForCategory.map(component => {
       return (
         <Tile
@@ -79,6 +79,20 @@ export class Category extends Component {
         />
       )
     })
+
+    if (selectedComponentName !== undefined){
+      if (typeof selectedComponent.schema !== 'object') {
+        selectedComponent.schema = JSON.parse(selectedComponent.schema)
+      }
+
+      if (typeof selectedComponent.uiSchema !== 'object') {
+        selectedComponent.uiSchema = JSON.parse(selectedComponent.uiSchema)
+      }
+
+      console.log(selectedComponent.schema)
+      console.log(selectedComponent.uiSchema)
+      console.log(selectedComponentConfig)
+    }
 
     const componentConfigPanel = selectedComponentName === undefined ? null : (
       <div className="py-6 px-4 space-y-6 sm:p-6">

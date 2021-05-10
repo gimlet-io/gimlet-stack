@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/enescakir/emoji"
 	"github.com/gimlet-io/gimlet-cli/commands/chart/ws"
+	"github.com/gimlet-io/gimlet-stack/template/web"
 	"github.com/gimlet-io/gimlet-stack/version"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
@@ -24,16 +25,20 @@ import (
 type Component struct {
 	Name        string `json:"name,omitempty" yaml:"name"`
 	Description string `json:"description,omitempty" yaml:"description"`
+	Category    string `json:"category,omitempty" yaml:"category"`
+	Variable    string `json:"variable,omitempty" yaml:"variable"`
+	Logo        string `json:"logo,omitempty" yaml:"logo"`
 	OnePager    string `json:"onePager,omitempty" yaml:"onePager"`
 	Schema      string `json:"schema,omitempty" yaml:"schema"`
 	UISchema    string `json:"uiSchema,omitempty" yaml:"uiSchema"`
 }
 
 type StackDefinition struct {
-	Name        string       `json:"name,omitempty" yaml:"name"`
-	Description string       `json:"description,omitempty" yaml:"description"`
-	Intro       string       `json:"intro,omitempty" yaml:"intro"`
-	Components  []*Component `json:"components,omitempty" yaml:"components"`
+	Name        string        `json:"name,omitempty" yaml:"name"`
+	Description string        `json:"description,omitempty" yaml:"description"`
+	Intro       string        `json:"intro,omitempty" yaml:"intro"`
+	Categories  []interface{} `json:"categories" yaml:"categories"`
+	Components  []*Component  `json:"components,omitempty" yaml:"components"`
 }
 
 func StackDefinitionFromRepo(repoUrl string) (string, error) {
@@ -46,6 +51,14 @@ func StackDefinitionFromRepo(repoUrl string) (string, error) {
 }
 
 func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig) (string, error) {
+	stackDefinitionJson, err := json.Marshal(stackDefinition)
+	if err != nil {
+		panic(err)
+	}
+	stackJson, err := json.Marshal(existingStackConfig)
+	if err != nil {
+		panic(err)
+	}
 
 	port := randomPort()
 
@@ -53,7 +66,7 @@ func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig)
 	if err != nil {
 		panic(err)
 	}
-	writeTempFiles(workDir, schema, helmUISchema, string(existingValuesJson))
+	writeTempFiles(workDir, string(stackDefinitionJson), string(stackJson))
 	defer removeTempFiles(workDir)
 	browserClosed := make(chan int, 1)
 	r := setupRouter(workDir, browserClosed)
@@ -65,7 +78,10 @@ func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig)
 	go srv.ListenAndServe()
 	fmt.Fprintf(os.Stderr, "%v Configure on http://127.0.0.1:%d\n", emoji.WomanTechnologist, port)
 	fmt.Fprintf(os.Stderr, "%v Close the browser when you are done\n", emoji.WomanTechnologist)
-	openBrowser(fmt.Sprintf("http://127.0.0.1:%d", port))
+	err = openBrowser(fmt.Sprintf("http://127.0.0.1:%d", port))
+	if err != nil {
+		panic(err)
+	}
 
 	select {
 	case <-ctrlC:
@@ -88,13 +104,12 @@ func randomPort() int {
 	return r1.Intn(10000) + 20000
 }
 
-func writeTempFiles(workDir string, schema string, helmUISchema string, existingValues string) {
-	ioutil.WriteFile(filepath.Join(workDir, "values.schema.json"), []byte(schema), 0666)
-	ioutil.WriteFile(filepath.Join(workDir, "helm-ui.json"), []byte(helmUISchema), 0666)
-	ioutil.WriteFile(filepath.Join(workDir, "values.json"), []byte(existingValues), 0666)
-	ioutil.WriteFile(filepath.Join(workDir, "bundle.js"), bundleJs, 0666)
-	ioutil.WriteFile(filepath.Join(workDir, "bundle.js.LICENSE.txt"), licenseTxt, 0666)
-	ioutil.WriteFile(filepath.Join(workDir, "index.html"), indexHtml, 0666)
+func writeTempFiles(workDir string, stackDefinition string, stackJson string) {
+	ioutil.WriteFile(filepath.Join(workDir, "stack-definition.json"), []byte(stackDefinition), 0666)
+	ioutil.WriteFile(filepath.Join(workDir, "stack.json"), []byte(stackJson), 0666)
+	ioutil.WriteFile(filepath.Join(workDir, "bundle.js"), web.BundleJs, 0666)
+	ioutil.WriteFile(filepath.Join(workDir, "bundle.js.LICENSE.txt"), web.LicenseTxt, 0666)
+	ioutil.WriteFile(filepath.Join(workDir, "index.html"), web.IndexHtml, 0666)
 }
 
 func removeTempFiles(workDir string) {
@@ -122,11 +137,11 @@ func setupRouter(workDir string, browserClosed chan int) *chi.Mux {
 		ws.ServeWs(browserClosed, w, r)
 	})
 
-	r.Post("/saveValues", func(w http.ResponseWriter, r *http.Request) {
-		json.NewDecoder(r.Body).Decode(&values)
-		w.WriteHeader(200)
-		w.Write([]byte("{}"))
-	})
+	//r.Post("/saveValues", func(w http.ResponseWriter, r *http.Request) {
+	//	json.NewDecoder(r.Body).Decode(&values)
+	//	w.WriteHeader(200)
+	//	w.Write([]byte("{}"))
+	//})
 
 	filesDir := http.Dir(workDir)
 	fileServer(r, "/", filesDir)
@@ -134,7 +149,7 @@ func setupRouter(workDir string, browserClosed chan int) *chi.Mux {
 	return r
 }
 
-func openBrowser(url string) {
+func openBrowser(url string) error {
 	var err error
 
 	switch runtime.GOOS {
@@ -147,9 +162,7 @@ func openBrowser(url string) {
 	default:
 		err = fmt.Errorf("unsupported platform")
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
 // fileServer conveniently sets up a http.FileServer handler to serve

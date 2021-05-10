@@ -16,7 +16,56 @@ config:
 `
 
 	stackDefinitionYaml := `
-
+name: "Gimlet Stack Reference"
+description: "Providing a reference stack to demonstrate Gimlet Stack"
+categories:
+- name: "⬅️Ingress"
+  id: "ingress"
+- name: "📑 Logging"
+  id: "logging"
+components:
+- name: "Nginx"
+  variable: "nginx"
+  category: "ingress"
+  logo: "https://raw.githubusercontent.com/gimlet-io/gimlet-stack-reference/main/assets/nginx.png"
+  description: ""
+  onePager: "An Nginx proxy server that routes traffic to your applications based on the host name or path."
+  schema: |-
+    {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "$id": "http://example.com/example.json",
+      "type": "object",
+      "title": "The root schema",
+      "description": "The root schema comprises the entire JSON document.",
+      "properties": {
+        "enabled": {
+          "$id": "#/properties/enabled",
+          "type": "boolean",
+          "title": "Enabled"
+        },
+        "host": {
+          "$id": "#/properties/host",
+          "type": "string",
+          "title": "Host",
+          "description": "Your company domain you will expose your services on",
+          "default": "",
+          "examples": [
+            "mycompany.com"
+          ]
+        }
+      }
+    }
+  uiSchema: |-
+    [
+      {
+        "schemaIDs": [
+          "#/properties/enabled",
+          "#/properties/host"
+        ],
+        "uiSchema": {},
+        "metaData": {}
+      }
+    ]
 `
 
 	var stackConfig StackConfig

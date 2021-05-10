@@ -12,6 +12,6 @@ bin
 web/node_modules
 web/dist
 
-commands/bundle.js
-commands/bundle.js.LICENSE.txt
-commands/index.html
+template/web/bundle.js
+template/web/bundle.js.LICENSE.txt
+template/web/index.html

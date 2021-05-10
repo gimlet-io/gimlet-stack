@@ -31,3 +31,9 @@ fast-dist:
 	mkdir -p bin
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags $(LDFLAGS) -a -installsuffix cgo -o bin/stack-linux-x86_64 github.com/gimlet-io/gimlet-stack/cmd
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags $(LDFLAGS) -a -installsuffix cgo -o bin/stack-darwin-x86_64 github.com/gimlet-io/gimlet-stack/cmd
+
+build-frontend:
+	(cd web/; npm install; npm run build)
+	@cp web/dist/bundle.js template/web/
+	@cp web/dist/bundle.js.LICENSE.txt template/web/
+	@cp web/dist/index.html template/web/

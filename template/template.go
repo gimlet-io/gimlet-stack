@@ -21,13 +21,13 @@ type StackRef struct {
 }
 
 type StackConfig struct {
-	Stack  StackRef               `yaml:"stack" json:"stack"`
-	Config map[string]interface{} `yaml:"config" json:"config"`
+	Stack      StackRef               `yaml:"stack" json:"stack"`
+	Config     map[string]interface{} `yaml:"config" json:"config"`
 }
 
 func GenerateFromStackYaml(stackConfig StackConfig) (map[string]string, error) {
 	stackTemplates, err := cloneStackFromRepo(stackConfig.Stack.Repository)
-	if err!= nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -69,10 +69,9 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 	gitUrl := strings.ReplaceAll(repoURL, gitAddress.RawQuery, "")
 	gitUrl = strings.ReplaceAll(gitUrl, "?", "")
 
-
 	fs := memfs.New()
 	opts := &git.CloneOptions{
-		URL:  gitUrl,
+		URL: gitUrl,
 	}
 	repo, err := git.Clone(memory.NewStorage(), fs, opts)
 	if err != nil {
