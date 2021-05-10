@@ -37,6 +37,7 @@
     "helm-react-ui": "file:../../helm-react-ui",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
+    "remarkable": "^2.0.1",
     "tailwindcss": "^2.1.2"
   },
   "jest": {

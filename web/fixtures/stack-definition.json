@@ -18,7 +18,7 @@
       "category": "ingress",
       "logo": "https://raw.githubusercontent.com/gimlet-io/gimlet-stack-reference/main/assets/nginx.png",
       "description": "",
-      "onePager": "",
+      "onePager": "An Nginx proxy server that routes traffic to your applications based on the host name or path.",
       "schema": {
         "$schema": "http://json-schema.org/draft-07/schema",
         "$id": "http://example.com/example.json",

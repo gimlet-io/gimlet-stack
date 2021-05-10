@@ -3,6 +3,7 @@ import React, {Component} from 'react'
 import {Tile} from "./tile";
 import HelmUI from "helm-react-ui";
 import {XIcon} from "@heroicons/react/outline";
+import {Remarkable} from "remarkable";
 
 export class Category extends Component {
   constructor(props) {
@@ -90,9 +91,10 @@ export class Category extends Component {
       </div>
     );
 
+    const md = new Remarkable();
     const gettingStartedPanel = selectedComponentName === undefined ? null : (
       <div className="py-6 px-4 space-y-6 sm:p-6">
-        Hello
+        <div class="prose lg:prose-xl" dangerouslySetInnerHTML={{__html: md.render(selectedComponent.onePager)}}/>
       </div>
     );
 
