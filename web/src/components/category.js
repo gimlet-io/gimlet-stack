@@ -10,17 +10,31 @@ export class Category extends Component {
 
     this.state = {
       toggleState: {},
+      tabState: {}
     }
 
     this.toggleComponent = this.toggleComponent.bind(this)
   }
 
   toggleComponent(category, component) {
-    console.log("toggling " + category + " " + component)
     this.setState(prevState => ({
       toggleState: {
         ...prevState.toggleState,
         [category]: prevState.toggleState[category] == component ? undefined : component
+      },
+      tabState: {
+        ...prevState.tabState,
+        [component]: prevState.tabState[component] === undefined ? 'getting-started' : prevState.tabState[component]
+      }
+    }))
+  }
+
+  switchTab(component, tab) {
+    console.log("switching " + component + " " + tab)
+    this.setState(prevState => ({
+      tabState: {
+        ...prevState.tabState,
+        [component]: tab
       }
     }))
   }
@@ -76,6 +90,16 @@ export class Category extends Component {
       </div>
     );
 
+    const gettingStartedPanel = selectedComponentName === undefined ? null : (
+      <div className="py-6 px-4 space-y-6 sm:p-6">
+        Hello
+      </div>
+    );
+
+    const notSelectedTabStyle = "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm";
+    const selectedTabStyle = "border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm";
+    const tabState = this.state.tabState
+
     return (
       <div class="my-8">
         <h2 class="text-lg">{category.name}</h2>
@@ -108,12 +132,16 @@ export class Category extends Component {
                 <div className="border-b border-gray-200">
                   <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                     <a href="#"
-                       className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                       className={tabState[selectedComponentName] == 'getting-started' ? selectedTabStyle : notSelectedTabStyle}
+                       aria-current={tabState[selectedComponentName] == 'getting-started' ? 'page' : undefined}
+                       onClick={() => this.switchTab(selectedComponentName, 'getting-started')}
+                    >
                       Getting Started
                     </a>
                     <a href="#"
-                       className="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                       aria-current="page"
+                       className={tabState[selectedComponentName] == 'config' ? selectedTabStyle : notSelectedTabStyle}
+                       aria-current={tabState[selectedComponentName] == 'config' ? 'page' : undefined}
+                       onClick={() => this.switchTab(selectedComponentName, 'config')}
                     >
                       Config
                     </a>
@@ -121,7 +149,12 @@ export class Category extends Component {
                 </div>
               </div>
             </div>
-            {componentConfigPanel}
+            {tabState[selectedComponentName] == 'getting-started' &&
+              gettingStartedPanel
+            }
+            {tabState[selectedComponentName] == 'config' &&
+              componentConfigPanel
+            }
           </div>
           }
         </div>
