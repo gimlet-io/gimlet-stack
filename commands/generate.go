@@ -28,7 +28,6 @@ var GenerateCmd = cli.Command{
 }
 
 func generate(c *cli.Context) error {
-
 	stackConfigPath := c.String("config")
 	if stackConfigPath == "" {
 		stackConfigPath = "stack.yaml"

@@ -41,6 +41,9 @@ func generate(
 	generatedFiles := map[string]string{}
 
 	for path, fileContent := range stackTemplate {
+		if path == "stack-definition.yaml" {
+			continue
+		}
 		templates, err := template.New(path).Funcs(sprig.TxtFuncMap()).Parse(fileContent)
 		if err != nil {
 			return nil, err
@@ -117,6 +120,10 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 
 	files := map[string]string{}
 	for _, path := range paths {
+		if strings.HasPrefix(path, "assets/") {
+			continue
+		}
+
 		content, err := githelper.Content(repo, path)
 		if err != nil {
 			return nil, fmt.Errorf("cannot get file: %s", err)
