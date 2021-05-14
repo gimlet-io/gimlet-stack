@@ -19,6 +19,7 @@ func main() {
 		Commands: []*cli.Command{
 			&commands.BootstrapCmd,
 			&commands.GenerateCmd,
+			&commands.ConfigureCmd,
 		},
 	}
 	err := app.Run(os.Args)

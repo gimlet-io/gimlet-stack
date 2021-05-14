@@ -21,13 +21,13 @@ type StackRef struct {
 }
 
 type StackConfig struct {
-	Stack  StackRef               `yaml:"stack" json:"stack"`
-	Config map[string]interface{} `yaml:"config" json:"config"`
+	Stack      StackRef               `yaml:"stack" json:"stack"`
+	Config     map[string]interface{} `yaml:"config" json:"config"`
 }
 
 func GenerateFromStackYaml(stackConfig StackConfig) (map[string]string, error) {
 	stackTemplates, err := cloneStackFromRepo(stackConfig.Stack.Repository)
-	if err!= nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -41,6 +41,9 @@ func generate(
 	generatedFiles := map[string]string{}
 
 	for path, fileContent := range stackTemplate {
+		if path == "stack-definition.yaml" {
+			continue
+		}
 		templates, err := template.New(path).Funcs(sprig.TxtFuncMap()).Parse(fileContent)
 		if err != nil {
 			return nil, err
@@ -69,10 +72,9 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 	gitUrl := strings.ReplaceAll(repoURL, gitAddress.RawQuery, "")
 	gitUrl = strings.ReplaceAll(gitUrl, "?", "")
 
-
 	fs := memfs.New()
 	opts := &git.CloneOptions{
-		URL:  gitUrl,
+		URL: gitUrl,
 	}
 	repo, err := git.Clone(memory.NewStorage(), fs, opts)
 	if err != nil {
@@ -114,14 +116,21 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 		return nil, fmt.Errorf("cannot liost files: %s", err)
 	}
 
+	paths = append(paths, "stack-definition.yaml")
+
 	files := map[string]string{}
 	for _, path := range paths {
+		if strings.HasPrefix(path, "assets/") {
+			continue
+		}
+
 		content, err := githelper.Content(repo, path)
 		if err != nil {
 			return nil, fmt.Errorf("cannot get file: %s", err)
 		}
 		files[path] = content
 	}
+
 
 	return files, nil
 }
