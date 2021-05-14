@@ -60,7 +60,7 @@ func Test_cloneStackFromRepo(t *testing.T) {
 	//files, err := cloneStackFromRepo("git@github.com:gimlet-io/gimlet-stack-reference.git?sha=538af1fdb42fea6da80fad4c2e406ab836351f35")
 	files, err := cloneStackFromRepo("https://github.com/gimlet-io/gimlet-stack-reference.git?sha=538af1fdb42fea6da80fad4c2e406ab836351f35")
 	assert.Nil(t, err)
-	assert.Equal(t, 25, len(files))
+	assert.Equal(t, 26, len(files))
 }
 
 func Test_GenerateFromStackYaml(t *testing.T) {

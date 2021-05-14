@@ -33,6 +33,9 @@ jobs:
       env:
         VERSION: ${{ steps.get_version.outputs.version-without-v }}
 
+    - name: Build Frontend
+      run: make build-frontend
+
     - name: Test
       run: make test
 

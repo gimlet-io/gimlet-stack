@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func Test_Configure(t *testing.T) {
+func manualTest_Configure(t *testing.T) {
 	stackConfigYaml := `
 stack:
   repository: "..."
