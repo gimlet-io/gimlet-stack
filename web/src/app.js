@@ -66,9 +66,6 @@ class App extends Component {
   render() {
     let {stackDefinition, stack} = this.state
 
-    console.log(stackDefinition)
-    console.log(stack)
-
     if (stackDefinition === undefined || stack === undefined) {
       return null;
     }

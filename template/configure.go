@@ -55,7 +55,7 @@ func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig)
 	if err != nil {
 		panic(err)
 	}
-	stackJson, err := json.Marshal(existingStackConfig)
+	stackJson, err := json.Marshal(existingStackConfig.Config)
 	if err != nil {
 		panic(err)
 	}
