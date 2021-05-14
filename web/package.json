@@ -34,7 +34,7 @@
     "@tailwindcss/forms": "^0.3.2",
     "and": "0.0.3",
     "autoprefixer": "^10.2.5",
-    "helm-react-ui": "file:../../helm-react-ui",
+    "helm-react-ui": "github:gimlet-io/helm-react-ui#iteration",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "remarkable": "^2.0.1",

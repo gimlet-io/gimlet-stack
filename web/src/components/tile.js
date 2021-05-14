@@ -11,7 +11,6 @@ export class Tile extends Component {
 
         const selected = component.variable === selectedComponentName;
         const enabled = componentConfig !== undefined ? componentConfig.enabled : false;
-        const selectedOrEnabled = selected || enabled;
         return (
             <div onClick={() => toggleComponentHandler(category.id, component.variable)}>
                 <div className="w-32 h-32 px-2 overflow-hidden cursor-pointer">

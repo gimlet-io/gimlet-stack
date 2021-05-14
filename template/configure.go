@@ -9,6 +9,7 @@ import (
 	"github.com/gimlet-io/gimlet-stack/template/web"
 	"github.com/gimlet-io/gimlet-stack/version"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"io/ioutil"
 	"math/rand"
@@ -50,11 +51,20 @@ func StackDefinitionFromRepo(repoUrl string) (string, error) {
 	return stackTemplates["stack-definition.yaml"], nil
 }
 
-func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig) (string, error) {
+var values map[string]interface{}
+
+func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig) (StackConfig, error) {
 	stackDefinitionJson, err := json.Marshal(stackDefinition)
 	if err != nil {
 		panic(err)
 	}
+
+	if existingStackConfig.Config == nil {
+		existingStackConfig.Config = map[string]interface{}{}
+	}
+
+	values = existingStackConfig.Config
+
 	stackJson, err := json.Marshal(existingStackConfig.Config)
 	if err != nil {
 		panic(err)
@@ -91,7 +101,9 @@ func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig)
 	fmt.Fprintf(os.Stderr, "%v Generating values..\n\n", emoji.FileFolder)
 	srv.Shutdown(context.TODO())
 
-	return "", nil
+	existingStackConfig.Config = values
+
+	return existingStackConfig, nil
 }
 
 func randomPort() int {
@@ -119,7 +131,7 @@ func removeTempFiles(workDir string) {
 func setupRouter(workDir string, browserClosed chan int) *chi.Mux {
 	r := chi.NewRouter()
 	if version.String() == "idea" {
-		//r.Use(middleware.Logger)
+		r.Use(middleware.Logger)
 	}
 
 	r.Use(cors.Handler(cors.Options{
@@ -137,11 +149,11 @@ func setupRouter(workDir string, browserClosed chan int) *chi.Mux {
 		ws.ServeWs(browserClosed, w, r)
 	})
 
-	//r.Post("/saveValues", func(w http.ResponseWriter, r *http.Request) {
-	//	json.NewDecoder(r.Body).Decode(&values)
-	//	w.WriteHeader(200)
-	//	w.Write([]byte("{}"))
-	//})
+	r.Post("/saveValues", func(w http.ResponseWriter, r *http.Request) {
+		json.NewDecoder(r.Body).Decode(&values)
+		w.WriteHeader(200)
+		w.Write([]byte("{}"))
+	})
 
 	filesDir := http.Dir(workDir)
 	fileServer(r, "/", filesDir)

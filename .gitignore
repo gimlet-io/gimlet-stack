@@ -15,3 +15,5 @@ web/dist
 template/web/bundle.js
 template/web/bundle.js.LICENSE.txt
 template/web/index.html
+
+stack.yaml

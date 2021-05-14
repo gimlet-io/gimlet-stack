@@ -113,6 +113,12 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 		return nil, fmt.Errorf("cannot liost files: %s", err)
 	}
 
+	rootPaths, err := util.Glob(worktree.Filesystem, "*")
+	if err != nil {
+		return nil, fmt.Errorf("cannot liost files: %s", err)
+	}
+	paths = append(paths, rootPaths...)
+
 	files := map[string]string{}
 	for _, path := range paths {
 		content, err := githelper.Content(repo, path)
@@ -121,6 +127,7 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 		}
 		files[path] = content
 	}
+
 
 	return files, nil
 }

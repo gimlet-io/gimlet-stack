@@ -50,6 +50,11 @@ class App extends Component {
   }
 
   setValues(variable, values, nonDefaultValues) {
+    const updatedNonDefaultValues = {
+      ...this.state.stackNonDefaultValues,
+      [variable]: nonDefaultValues
+    }
+
     this.setState(prevState => ({
       stack: {
         ...prevState.stack,
@@ -60,11 +65,15 @@ class App extends Component {
         [variable]: nonDefaultValues
       }
     }))
-    //this.state.client.saveValues(nonDefaultValues)
+
+    this.state.client.saveValues(updatedNonDefaultValues)
   }
 
   render() {
     let {stackDefinition, stack} = this.state
+
+    console.log(stackDefinition)
+    console.log(stack)
 
     if (stackDefinition === undefined || stack === undefined) {
       return null;
@@ -79,6 +88,8 @@ class App extends Component {
       />
     })
 
+    console.log(categories)
+
     return (
       <div>
         <StreamingBackend client={this.state.client}/>
@@ -86,13 +97,15 @@ class App extends Component {
           <span className="inline-flex rounded-md shadow-sm m-8">
             <button
               type="button"
-              className="cursor-default inline-flex items-center px-6 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-gray-600 transition ease-in-out duration-150"
+              className="inline-flex items-center px-12 py-6 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               onClick={() => {
                 console.log(this.state.stack)
                 console.log(this.state.stackNonDefaultValues)
+                close();
               }}
             >
-              Close the browser when you are done, the values will be printed on the console
+              Close tab & <br />
+              Write values
             </button>
           </span>
         </div>
