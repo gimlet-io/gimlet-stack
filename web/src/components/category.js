@@ -103,7 +103,7 @@ export class Category extends Component {
     const md = new Remarkable();
     const gettingStartedPanel = selectedComponentName === undefined ? null : (
       <div className="py-6 px-4 space-y-6 sm:p-6">
-        <div class="prose lg:prose-xl" dangerouslySetInnerHTML={{__html: md.render(selectedComponent.onePager)}}/>
+        <div class="prose" dangerouslySetInnerHTML={{__html: md.render(selectedComponent.onePager)}}/>
       </div>
     );
 
