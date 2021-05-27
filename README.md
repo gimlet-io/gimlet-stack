@@ -21,7 +21,7 @@ https://gimlet.io/gimlet-stack/getting-started/
 
 Gimlet Stack is developed in the open.
 
-Please check the [v0.2.0](https://github.com/gimlet-io/gimlet-stack/projects/2) project and see if you are interested to help.
+Please check the [v0.1.1](https://github.com/gimlet-io/gimlet-stack/projects/2) project and see if you are interested to help.
 
 You can talk to us at our Discord server: https://discord.gg/VdQrdqwReB
 
