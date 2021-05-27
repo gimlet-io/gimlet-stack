@@ -11,7 +11,10 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/storage/memory"
 	giturl "github.com/whilp/git-urls"
+	"io/ioutil"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 )
@@ -67,7 +70,12 @@ func generate(
 func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 	gitAddress, err := giturl.ParseScp(repoURL)
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse stacks's git address: %s", err)
+		_, err2 := os.Stat(repoURL)
+		if err2 != nil {
+			return nil, fmt.Errorf("cannot parse stacks's git address: %s", err)
+		} else {
+			return loadStackFromFS(repoURL)
+		}
 	}
 	gitUrl := strings.ReplaceAll(repoURL, gitAddress.RawQuery, "")
 	gitUrl = strings.ReplaceAll(gitUrl, "?", "")
@@ -131,6 +139,37 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 		files[path] = content
 	}
 
+	return files, nil
+}
+
+func loadStackFromFS(root string) (map[string]string, error) {
+	if !strings.HasSuffix(root, "/") {
+		root = root + "/"
+	}
+
+	files := map[string]string{}
+
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		path = strings.TrimPrefix(path, root)
+		if info.IsDir() {
+			return nil
+		}
+		if strings.HasPrefix(path, "assets/") ||
+			strings.HasPrefix(path, ".git/") {
+			return nil
+		}
+
+		content, err := ioutil.ReadFile(filepath.Join(root, path))
+		if err != nil {
+			return fmt.Errorf("cannot get file: %s", err)
+		}
+		files[path] = string(content)
+
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("cannot walk %s: %s", root, err)
+	}
 
 	return files, nil
 }
