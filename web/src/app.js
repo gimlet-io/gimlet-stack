@@ -105,7 +105,7 @@ class App extends Component {
               }}
             >
               Close tab & <br />
-              Write values
+              Write config
             </button>
           </span>
         </div>
