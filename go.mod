@@ -5,16 +5,16 @@ go 1.16
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/enescakir/emoji v1.0.0
+	github.com/fluxcd/source-controller v0.13.1
 	github.com/gimlet-io/gimlet-cli v0.8.0-rc1.0.20210428134552-eff0760ce3f3
-	github.com/gimlet-io/gimletd v0.1.1-0.20210319125454-545e91c54f48
 	github.com/go-chi/chi v1.5.1
 	github.com/go-chi/cors v1.1.1
-	github.com/go-git/go-billy/v5 v5.0.0
-	github.com/go-git/go-git/v5 v5.3.0
-	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/go-git/go-billy/v5 v5.3.1
+	github.com/go-git/go-git/v5 v5.4.1
+	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/whilp/git-urls v1.0.0
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 )
 
 replace (
