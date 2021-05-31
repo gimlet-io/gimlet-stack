@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Masterminds/sprig/v3"
-	"github.com/gimlet-io/gimletd/githelper"
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-billy/v5/util"
 	"github.com/go-git/go-git/v5"
@@ -121,22 +120,39 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 
 	paths, err := util.Glob(worktree.Filesystem, "*/*")
 	if err != nil {
-		return nil, fmt.Errorf("cannot liost files: %s", err)
+		return nil, fmt.Errorf("cannot list files: %s", err)
 	}
+	paths2, err := util.Glob(worktree.Filesystem, "*")
+	if err != nil {
+		return nil, fmt.Errorf("cannot list files: %s", err)
+	}
+	paths = append(paths, paths2...)
 
-	paths = append(paths, "stack-definition.yaml")
 
+	fs = worktree.Filesystem
 	files := map[string]string{}
 	for _, path := range paths {
-		if strings.HasPrefix(path, "assets/") {
-			continue
-		}
-
-		content, err := githelper.Content(repo, path)
+		info, err := fs.Stat(path)
 		if err != nil {
 			return nil, fmt.Errorf("cannot get file: %s", err)
 		}
-		files[path] = content
+
+		if info.IsDir() {
+			continue
+		}
+
+		f, err := fs.Open(path)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get file: %s", err)
+		}
+		defer f.Close()
+
+		content, err := ioutil.ReadAll(f)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get file: %s", err)
+		}
+
+		files[path] = string(content)
 	}
 
 	return files, nil
