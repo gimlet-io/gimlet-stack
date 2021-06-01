@@ -20,6 +20,7 @@ func main() {
 			&commands.BootstrapCmd,
 			&commands.GenerateCmd,
 			&commands.ConfigureCmd,
+			&commands.LintCmd,
 		},
 	}
 	err := app.Run(os.Args)
