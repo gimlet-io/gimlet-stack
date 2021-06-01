@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Masterminds/sprig/v3"
-	"github.com/gimlet-io/gimletd/githelper"
+	"github.com/fluxcd/source-controller/pkg/sourceignore"
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-billy/v5/util"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/format/gitignore"
 	"github.com/go-git/go-git/v5/storage/memory"
 	giturl "github.com/whilp/git-urls"
 	"io/ioutil"
@@ -67,6 +68,8 @@ func generate(
 	return generatedFiles, nil
 }
 
+// cloneStackFromRepo takes a git repo url, and returns the files of the git reference
+// if the repoUrl is a local filesystem location, it loads the files from there
 func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 	gitAddress, err := giturl.ParseScp(repoURL)
 	if err != nil {
@@ -121,22 +124,57 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 
 	paths, err := util.Glob(worktree.Filesystem, "*/*")
 	if err != nil {
-		return nil, fmt.Errorf("cannot liost files: %s", err)
+		return nil, fmt.Errorf("cannot list files: %s", err)
+	}
+	paths2, err := util.Glob(worktree.Filesystem, "*")
+	if err != nil {
+		return nil, fmt.Errorf("cannot list files: %s", err)
+	}
+	paths = append(paths, paths2...)
+
+	fs = worktree.Filesystem
+
+	var stackIgnorePatterns []gitignore.Pattern
+	const stackIgnoreFile = ".stackignore"
+	_, err = fs.Stat(stackIgnoreFile)
+	if err == nil {
+		if f, err := fs.Open(stackIgnoreFile); err == nil {
+			defer f.Close()
+			stackIgnorePatterns = sourceignore.ReadPatterns(f, []string{})
+		} else {
+			return nil, fmt.Errorf("cannot read .stackignore file: %s", err)
+		}
 	}
 
-	paths = append(paths, "stack-definition.yaml")
+	ignore := gitignore.NewMatcher(stackIgnorePatterns)
 
 	files := map[string]string{}
 	for _, path := range paths {
-		if strings.HasPrefix(path, "assets/") {
-			continue
-		}
-
-		content, err := githelper.Content(repo, path)
+		info, err := fs.Stat(path)
 		if err != nil {
 			return nil, fmt.Errorf("cannot get file: %s", err)
 		}
-		files[path] = content
+
+		if info.IsDir() {
+			continue
+		}
+
+		if ignore.Match(strings.Split(path, "/"), false) {
+			continue
+		}
+
+		f, err := fs.Open(path)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get file: %s", err)
+		}
+		defer f.Close()
+
+		content, err := ioutil.ReadAll(f)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get file: %s", err)
+		}
+
+		files[path] = string(content)
 	}
 
 	return files, nil
