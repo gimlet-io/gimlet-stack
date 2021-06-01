@@ -38,7 +38,7 @@ func generate(c *cli.Context) error {
 	}
 
 	var stackConfig template.StackConfig
-	err = yaml.Unmarshal([]byte(stackConfigYaml), &stackConfig)
+	err = yaml.Unmarshal(stackConfigYaml, &stackConfig)
 	if err != nil {
 		return fmt.Errorf("cannot parse stack config file: %s", err.Error())
 	}
