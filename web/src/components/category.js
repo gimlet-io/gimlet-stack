@@ -46,12 +46,14 @@ export class Category extends Component {
       category,
       stackDefinition,
       stack,
-      genericComponentSaver
+      genericComponentSaver,
+      genericValidationCallback
     } = this.props;
 
     let selectedComponent = undefined;
     let selectedComponentConfig = undefined;
     let componentSaver = undefined;
+    let validationCallback = undefined;
     const selectedComponentName = toggleState[category.id];
 
     if (selectedComponentName !== undefined) {
@@ -63,6 +65,9 @@ export class Category extends Component {
       }
       componentSaver = function (values, nonDefaultValues) {
         genericComponentSaver(selectedComponent.variable, values, nonDefaultValues)
+      };
+      validationCallback = function (errors) {
+        genericValidationCallback(selectedComponent.variable, errors)
       };
     }
 
@@ -96,6 +101,8 @@ export class Category extends Component {
           config={selectedComponent.uiSchema}
           values={selectedComponentConfig}
           setValues={componentSaver}
+          validate={true}
+          validationCallback={validationCallback}
         />
       </div>
     );

@@ -123,3 +123,15 @@
 .object-property-expand .btn-add {
     @apply mt-4
 }
+
+.has-danger .control-label {
+    @apply text-red-600 !important;
+}
+
+.error-detail {
+    @apply hidden
+}
+
+.errors {
+    @apply hidden
+}

@@ -21,9 +21,11 @@ class App extends Component {
       client: client,
       stack: {},
       stackNonDefaultValues: {},
+      errors: {},
+      showErrors: false
     }
     this.setValues = this.setValues.bind(this)
-
+    this.validationCallback = this.validationCallback.bind(this)
   }
 
   componentDidMount() {
@@ -65,15 +67,38 @@ class App extends Component {
         [variable]: nonDefaultValues
       }
     }))
+  }
 
-    this.state.client.saveValues(updatedNonDefaultValues)
+  validationCallback(variable, errors) {
+    if (errors === null) {
+      this.setState(prevState => {
+        delete prevState.errors[variable];
+
+        if (JSON.stringify(prevState.errors) === "{}") {
+          return {
+            errors: {},
+            showErrors: false
+          }
+        }
+
+        return {errors: prevState.errors}
+      })
+      return
+    }
+
+    errors = errors.filter(error => error.keyword !== 'oneOf');
+    errors = errors.filter(error => error.dataPath !== '.enabled');
+
+    this.setState(prevState => ({
+      errors: {
+        ...prevState.errors,
+        [variable]: errors
+      }
+    }))
   }
 
   render() {
     let {stackDefinition, stack} = this.state
-
-    console.log(stackDefinition)
-    console.log(stack)
 
     if (stackDefinition === undefined || stack === undefined) {
       return null;
@@ -85,14 +110,32 @@ class App extends Component {
         stackDefinition={stackDefinition}
         stack={stack}
         genericComponentSaver={this.setValues}
+        genericValidationCallback={this.validationCallback}
       />
     })
-
-    console.log(categories)
 
     return (
       <div>
         <StreamingBackend client={this.state.client}/>
+        <div
+          className={this.state.showErrors ? 'block fixed bottom-0 right-0 mb-48 mr-8 bg-red-300 rounded-md shadow py-4 px-8' : 'hidden'}>
+          <ul class="list-disc list-inside">
+            {
+              Object.keys(this.state.errors).map(variable => {
+                return (
+                  <div>
+                    <p class='capitalize font-bold'>{variable}</p>
+                    {this.state.errors[variable].map(e => {
+                      return (
+                        <li>{e.message}</li>
+                      )
+                    })}
+                  </div>
+                )
+              })
+            }
+          </ul>
+        </div>
         <div className="fixed bottom-0 right-0">
           <span className="inline-flex rounded-md shadow-sm m-8">
             <button
@@ -101,10 +144,19 @@ class App extends Component {
               onClick={() => {
                 console.log(this.state.stack)
                 console.log(this.state.stackNonDefaultValues)
-                close();
+
+                if (JSON.stringify(this.state.errors) !== "{}") {
+                  this.setState(() => ({
+                    showErrors: true
+                  }))
+                  return false
+                }
+
+                this.state.client.saveValues(this.state.stackNonDefaultValues)
+                  .then(() => close());
               }}
             >
-              Close tab & <br />
+              Close tab & <br/>
               Write config
             </button>
           </span>
