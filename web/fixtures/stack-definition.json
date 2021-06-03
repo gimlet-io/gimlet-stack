@@ -21,24 +21,41 @@
       "onePager": "An Nginx proxy server that routes traffic to your applications based on the host name or path.",
       "schema": {
         "$schema": "http://json-schema.org/draft-07/schema",
-        "$id": "http://example.com/example.json",
+        "$id": "#nginx",
         "type": "object",
-        "title": "The root schema",
-        "description": "The root schema comprises the entire JSON document.",
         "properties": {
           "enabled": {
             "$id": "#/properties/enabled",
             "type": "boolean",
             "title": "Enabled"
-          },
-          "host": {
-            "$id": "#/properties/host",
-            "type": "string",
-            "title": "Host",
-            "description": "Your company domain you will expose your services on",
-            "default": "",
-            "examples": [
-              "mycompany.com"
+          }
+        },
+        "dependencies": {
+          "enabled": {
+            "oneOf": [
+              {
+                "properties": {
+                  "enabled": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  },
+                  "host": {
+                    "$id": "#/properties/host",
+                    "type": "string",
+                    "title": "Host",
+                    "description": "Your company domain you will expose your services on"
+                  }
+                },
+                "required": [
+                  "host"
+                ]
+              }
             ]
           }
         }
@@ -46,8 +63,7 @@
       "uiSchema": [
         {
           "schemaIDs": [
-            "#/properties/enabled",
-            "#/properties/host"
+            "#nginx"
           ],
           "uiSchema": {},
           "metaData": {}
@@ -67,6 +83,9 @@
         "type": "object",
         "title": "The root schema",
         "description": "The root schema comprises the entire JSON document.",
+        "required": [
+          "email"
+        ],
         "properties": {
           "enabled": {
             "$id": "#/properties/enabled",

@@ -52,8 +52,9 @@ func StackDefinitionFromRepo(repoUrl string) (string, error) {
 }
 
 var values map[string]interface{}
+var written bool
 
-func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig) (StackConfig, error) {
+func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig) (StackConfig, bool, error) {
 	stackDefinitionJson, err := json.Marshal(stackDefinition)
 	if err != nil {
 		panic(err)
@@ -103,7 +104,7 @@ func Configure(stackDefinition StackDefinition, existingStackConfig StackConfig)
 
 	existingStackConfig.Config = values
 
-	return existingStackConfig, nil
+	return existingStackConfig, written, nil
 }
 
 func randomPort() int {
@@ -151,6 +152,7 @@ func setupRouter(workDir string, browserClosed chan int) *chi.Mux {
 
 	r.Post("/saveValues", func(w http.ResponseWriter, r *http.Request) {
 		json.NewDecoder(r.Body).Decode(&values)
+		written = true
 		w.WriteHeader(200)
 		w.Write([]byte("{}"))
 	})

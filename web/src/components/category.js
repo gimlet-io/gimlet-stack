@@ -46,12 +46,14 @@ export class Category extends Component {
       category,
       stackDefinition,
       stack,
-      genericComponentSaver
+      genericComponentSaver,
+      genericValidationCallback
     } = this.props;
 
     let selectedComponent = undefined;
     let selectedComponentConfig = undefined;
     let componentSaver = undefined;
+    let validationCallback = undefined;
     const selectedComponentName = toggleState[category.id];
 
     if (selectedComponentName !== undefined) {
@@ -63,6 +65,9 @@ export class Category extends Component {
       }
       componentSaver = function (values, nonDefaultValues) {
         genericComponentSaver(selectedComponent.variable, values, nonDefaultValues)
+      };
+      validationCallback = function (errors) {
+        genericValidationCallback(selectedComponent.variable, errors)
       };
     }
 
@@ -96,6 +101,8 @@ export class Category extends Component {
           config={selectedComponent.uiSchema}
           values={selectedComponentConfig}
           setValues={componentSaver}
+          validate={true}
+          validationCallback={validationCallback}
         />
       </div>
     );
@@ -142,20 +149,20 @@ export class Category extends Component {
               <div className="hidden sm:block">
                 <div className="border-b border-gray-200">
                   <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                    <a href="#"
+                    <button
                        className={tabState[selectedComponentName] == 'getting-started' ? selectedTabStyle : notSelectedTabStyle}
                        aria-current={tabState[selectedComponentName] == 'getting-started' ? 'page' : undefined}
                        onClick={() => this.switchTab(selectedComponentName, 'getting-started')}
                     >
                       Getting Started
-                    </a>
-                    <a href="#"
+                    </button>
+                    <button
                        className={tabState[selectedComponentName] == 'config' ? selectedTabStyle : notSelectedTabStyle}
                        aria-current={tabState[selectedComponentName] == 'config' ? 'page' : undefined}
                        onClick={() => this.switchTab(selectedComponentName, 'config')}
                     >
                       Config
-                    </a>
+                    </button>
                   </nav>
                 </div>
               </div>
