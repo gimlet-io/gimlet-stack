@@ -17,6 +17,7 @@ stack:
 config:
   nginx:
     enabled: true
+    host: "gimlet.io"
 `
 
 const invalidFieldType = `
@@ -26,6 +27,7 @@ stack:
 config:
   nginx:
     enabled: "true"
+    host: "gimlet.io"
 `
 
 func Test_lint(t *testing.T) {
