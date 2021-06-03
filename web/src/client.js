@@ -17,11 +17,11 @@ export default class GimletCLIClient {
   }
 
   saveValues(values) {
-    this.post('/saveValues', JSON.stringify(values));
+    return this.post('/saveValues', JSON.stringify(values));
   }
 
   post (path, body) {
-    fetch(this.url + path, {
+    return fetch(this.url + path, {
       method: 'post',
       credentials: 'include',
       headers: {

@@ -153,7 +153,9 @@ class App extends Component {
                 }
 
                 this.state.client.saveValues(this.state.stackNonDefaultValues)
-                  .then(() => close());
+                  .then(() => {
+                    close()
+                  });
               }}
             >
               Close tab & <br/>

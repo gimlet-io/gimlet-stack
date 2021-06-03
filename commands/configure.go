@@ -71,26 +71,29 @@ func configure(c *cli.Context) error {
 		return fmt.Errorf("cannot parse stack definition: %s", err.Error())
 	}
 
-	updatedStackConfig, err := template.Configure(stackDefinition, stackConfig)
+	updatedStackConfig, written, err := template.Configure(stackDefinition, stackConfig)
 	if err != nil {
 		return fmt.Errorf("cannot configure stack: %s", err.Error())
 	}
 
-	updatedStackConfigBuffer := bytes.NewBufferString("")
-	e := yaml.NewEncoder(updatedStackConfigBuffer)
-	e.SetIndent(2)
-	e.Encode(updatedStackConfig)
+	if written {
+		updatedStackConfigBuffer := bytes.NewBufferString("")
+		e := yaml.NewEncoder(updatedStackConfigBuffer)
+		e.SetIndent(2)
+		e.Encode(updatedStackConfig)
 
-	updatedStackConfigString := "---\n" + updatedStackConfigBuffer.String()
-	err = ioutil.WriteFile(stackConfigPath, []byte(updatedStackConfigString), 0666)
-	if err != nil {
-		return fmt.Errorf("cannot write stack file %s", err)
+		updatedStackConfigString := "---\n" + updatedStackConfigBuffer.String()
+		err = ioutil.WriteFile(stackConfigPath, []byte(updatedStackConfigString), 0666)
+		if err != nil {
+			return fmt.Errorf("cannot write stack file %s", err)
+		}
+
+		fmt.Println("---")
+		fmt.Println(updatedStackConfigString)
+		fmt.Fprintf(os.Stderr, "%v Written to %s \n\n", emoji.FileFolder, stackConfigPath)
+	} else {
+		fmt.Fprintf(os.Stderr, "%v No changes made to config \n\n", emoji.Warning)
 	}
-
-	fmt.Println("---")
-	fmt.Println(updatedStackConfigString)
-
-	fmt.Fprintf(os.Stderr, "%v Written to %s \n\n", emoji.FileFolder, stackConfigPath)
 
 	return nil
 }
