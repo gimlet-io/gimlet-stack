@@ -116,8 +116,3 @@ stack:
 	assert.Nil(t, err)
 	assert.False(t, locked)
 }
-
-func Test_LatestVersion(t *testing.T) {
-	_, err := LatestVersion("https://github.com/gimlet-io/gimlet-stack-reference.git")
-	assert.Nil(t, err)
-}

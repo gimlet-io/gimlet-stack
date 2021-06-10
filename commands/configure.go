@@ -61,6 +61,17 @@ func configure(c *cli.Context) error {
 		stackConfig.Stack.Repository = "https://github.com/gimlet-io/gimlet-stack-reference.git"
 	}
 
+	locked, err := template.IsVersionLocked(stackConfig)
+	if err != nil {
+		return fmt.Errorf("cannot check version: %s", err.Error())
+	}
+	if !locked {
+		latestTag, _ := template.LatestVersion(stackConfig.Stack.Repository)
+		if latestTag != "" {
+			stackConfig.Stack.Repository = stackConfig.Stack.Repository + "?tag=" + latestTag
+		}
+	}
+
 	stackDefinitionYaml, err := template.StackDefinitionFromRepo(stackConfig.Stack.Repository)
 	if err != nil {
 		return fmt.Errorf("cannot get stack definition: %s", err.Error())
