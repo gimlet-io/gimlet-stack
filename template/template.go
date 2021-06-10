@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Masterminds/sprig/v3"
+	"github.com/blang/semver/v4"
 	"github.com/fluxcd/source-controller/pkg/sourceignore"
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-billy/v5/util"
@@ -210,4 +211,76 @@ func loadStackFromFS(root string) (map[string]string, error) {
 	}
 
 	return files, nil
+}
+
+func IsVersionLocked(stackConfig StackConfig) (bool, error) {
+	gitAddress, err := giturl.ParseScp(stackConfig.Stack.Repository)
+	if err != nil {
+		_, err2 := os.Stat(stackConfig.Stack.Repository)
+		if err2 != nil {
+			return false, fmt.Errorf("cannot parse stacks's git address: %s", err)
+		} else {
+			return true, nil
+		}
+	}
+
+	params, _ := url.ParseQuery(gitAddress.RawQuery)
+	if _, found := params["sha"]; found {
+		return true, nil
+	}
+	if _, found := params["tag"]; found {
+		return true, nil
+	}
+	if _, found := params["branch"]; found {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func LatestVersion(repoURL string) (string, error) {
+	gitAddress, err := giturl.ParseScp(repoURL)
+	if err != nil {
+		return "", fmt.Errorf("cannot parse stacks's git address: %s", err)
+	}
+	gitUrl := strings.ReplaceAll(repoURL, gitAddress.RawQuery, "")
+	gitUrl = strings.ReplaceAll(gitUrl, "?", "")
+
+	fs := memfs.New()
+	opts := &git.CloneOptions{
+		URL: gitUrl,
+	}
+	repo, err := git.Clone(memory.NewStorage(), fs, opts)
+	if err != nil {
+		return "", fmt.Errorf("cannot clone: %s", err)
+	}
+
+	tagRefs, err := repo.Tags()
+	if err != nil {
+		return "", fmt.Errorf("cannot get tags: %s", err)
+	}
+
+	var latestTag semver.Version
+	var latestTagString = ""
+	err = tagRefs.ForEach(func(tagRef *plumbing.Reference) error {
+		tagString := strings.TrimPrefix(string(tagRef.Name()), "refs/tags/")
+		tagStringWithoutV := strings.TrimPrefix(tagString, "v")
+
+		tag, err := semver.Make(tagStringWithoutV)
+		if err != nil {
+			return err
+		}
+
+		if latestTag.Compare(tag) == -1 {
+			latestTag = tag
+			latestTagString = tagString
+		}
+
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return latestTagString, nil
 }

@@ -83,3 +83,36 @@ config:
 	assert.Nil(t, err)
 	assert.Equal(t, 5, len(files))
 }
+
+func Test_IsVersionLocked(t *testing.T) {
+	stackConfigYaml := `
+stack:
+  repository: "https://github.com/gimlet-io/gimlet-stack-reference.git?sha=63630b03c805ef6c4c6ba02afdfe508f250d9719"
+`
+
+	var stackConfig StackConfig
+	err := yaml.Unmarshal([]byte(stackConfigYaml), &stackConfig)
+	assert.Nil(t, err)
+
+	locked, err := IsVersionLocked(stackConfig)
+	if err != nil {
+		fmt.Printf("%s", err.Error())
+	}
+	assert.Nil(t, err)
+	assert.True(t, locked)
+
+	stackConfigYaml = `
+stack:
+  repository: "https://github.com/gimlet-io/gimlet-stack-reference.git"
+`
+
+	err = yaml.Unmarshal([]byte(stackConfigYaml), &stackConfig)
+	assert.Nil(t, err)
+
+	locked, err = IsVersionLocked(stackConfig)
+	if err != nil {
+		fmt.Printf("%s", err.Error())
+	}
+	assert.Nil(t, err)
+	assert.False(t, locked)
+}
