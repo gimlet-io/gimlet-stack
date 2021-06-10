@@ -211,3 +211,28 @@ func loadStackFromFS(root string) (map[string]string, error) {
 
 	return files, nil
 }
+
+func isVersionLocked(stackConfig StackConfig) (bool, error) {
+	gitAddress, err := giturl.ParseScp(stackConfig.Stack.Repository)
+	if err != nil {
+		_, err2 := os.Stat(stackConfig.Stack.Repository)
+		if err2 != nil {
+			return false, fmt.Errorf("cannot parse stacks's git address: %s", err)
+		} else {
+			return true, nil
+		}
+	}
+
+	params, _ := url.ParseQuery(gitAddress.RawQuery)
+	if _, found := params["sha"]; found {
+		return true, nil
+	}
+	if _, found := params["tag"]; found {
+		return true, nil
+	}
+	if _, found := params["branch"]; found {
+		return true, nil
+	}
+
+	return false, nil
+}
