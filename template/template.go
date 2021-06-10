@@ -298,3 +298,15 @@ func CurrentVersion(repoURL string) string {
 
 	return ""
 }
+
+func RepoUrlWithoutVersion(repoURL string) string {
+	gitAddress, err := giturl.ParseScp(repoURL)
+	if err != nil {
+		return ""
+	}
+
+	gitUrl := strings.ReplaceAll(repoURL, gitAddress.RawQuery, "")
+	gitUrl = strings.ReplaceAll(gitUrl, "?", "")
+
+	return gitUrl
+}

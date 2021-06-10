@@ -21,6 +21,7 @@ func main() {
 			&commands.GenerateCmd,
 			&commands.ConfigureCmd,
 			&commands.LintCmd,
+			&commands.UpdateCmd,
 		},
 	}
 	err := app.Run(os.Args)
