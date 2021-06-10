@@ -72,6 +72,8 @@ func configure(c *cli.Context) error {
 		}
 	}
 
+	checkForUpdates(stackConfig)
+
 	stackDefinitionYaml, err := template.StackDefinitionFromRepo(stackConfig.Stack.Repository)
 	if err != nil {
 		return fmt.Errorf("cannot get stack definition: %s", err.Error())
@@ -101,9 +103,9 @@ func configure(c *cli.Context) error {
 
 		fmt.Println("---")
 		fmt.Println(updatedStackConfigString)
-		fmt.Fprintf(os.Stderr, "%v Written to %s \n\n", emoji.FileFolder, stackConfigPath)
+		fmt.Fprintf(os.Stderr, "%v  Written to %s \n\n", emoji.FileFolder, stackConfigPath)
 	} else {
-		fmt.Fprintf(os.Stderr, "%v No changes made to config \n\n", emoji.Warning)
+		fmt.Fprintf(os.Stderr, "%v  No changes made to config \n\n", emoji.Warning)
 	}
 
 	return nil

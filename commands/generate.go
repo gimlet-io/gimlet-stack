@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	"github.com/blang/semver/v4"
 	"github.com/enescakir/emoji"
 	"github.com/gimlet-io/gimlet-stack/template"
 	"github.com/urfave/cli/v2"
@@ -10,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var GenerateCmd = cli.Command{
@@ -47,8 +49,10 @@ func generate(c *cli.Context) error {
 
 	err = lockVersionIfNotLocked(stackConfig, stackConfigPath)
 	if err != nil {
-		return fmt.Errorf("stack version was not locked, and we couldn't lock it: %s", err.Error())
+		return fmt.Errorf("couldn't lock stack version: %s", err.Error())
 	}
+
+	checkForUpdates(stackConfig)
 
 	files, err := template.GenerateFromStackYaml(stackConfig)
 	if err != nil {
@@ -71,6 +75,28 @@ func generate(c *cli.Context) error {
 	fmt.Fprintf(os.Stderr, "%v  Generated\n", emoji.CheckMark)
 
 	return nil
+}
+
+func checkForUpdates(stackConfig template.StackConfig) {
+	currentTagString := template.CurrentVersion(stackConfig.Stack.Repository)
+	if currentTagString != "" {
+		latestTagString, _ := template.LatestVersion(stackConfig.Stack.Repository)
+		if latestTagString != "" {
+			currentTagWithoutV := strings.TrimPrefix(currentTagString, "v")
+			latestTagWithoutV := strings.TrimPrefix(latestTagString, "v")
+
+			currentTag, err := semver.Make(currentTagWithoutV)
+			latestTag, err2 := semver.Make(latestTagWithoutV)
+
+			if err != nil || err2 != nil {
+				return
+			}
+
+			if currentTag.Compare(latestTag) == -1 {
+				fmt.Fprintf(os.Stderr, "\n%v  Stack update available. Run `stack update --check` for details. \n\n", emoji.Warning)
+			}
+		}
+	}
 }
 
 func lockVersionIfNotLocked(stackConfig template.StackConfig, stackConfigPath string) error {

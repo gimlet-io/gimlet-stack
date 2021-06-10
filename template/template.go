@@ -284,3 +284,17 @@ func LatestVersion(repoURL string) (string, error) {
 
 	return latestTagString, nil
 }
+
+func CurrentVersion(repoURL string) string {
+	gitAddress, err := giturl.ParseScp(repoURL)
+	if err != nil {
+		return ""
+	}
+
+	params, _ := url.ParseQuery(gitAddress.RawQuery)
+	if tag, found := params["tag"]; found {
+		return tag[0]
+	}
+
+	return ""
+}
