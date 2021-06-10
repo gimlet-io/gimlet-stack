@@ -94,7 +94,7 @@ stack:
 	err := yaml.Unmarshal([]byte(stackConfigYaml), &stackConfig)
 	assert.Nil(t, err)
 
-	locked, err := isVersionLocked(stackConfig)
+	locked, err := IsVersionLocked(stackConfig)
 	if err != nil {
 		fmt.Printf("%s", err.Error())
 	}
@@ -109,10 +109,15 @@ stack:
 	err = yaml.Unmarshal([]byte(stackConfigYaml), &stackConfig)
 	assert.Nil(t, err)
 
-	locked, err = isVersionLocked(stackConfig)
+	locked, err = IsVersionLocked(stackConfig)
 	if err != nil {
 		fmt.Printf("%s", err.Error())
 	}
 	assert.Nil(t, err)
 	assert.False(t, locked)
+}
+
+func Test_LatestVersion(t *testing.T) {
+	_, err := LatestVersion("https://github.com/gimlet-io/gimlet-stack-reference.git")
+	assert.Nil(t, err)
 }

@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
+	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/enescakir/emoji v1.0.0
 	github.com/fluxcd/source-controller v0.13.1
 	github.com/franela/goblin v0.0.0-20200105215937-c9ffbefa60db // indirect

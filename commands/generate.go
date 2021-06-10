@@ -1,7 +1,9 @@
 package commands
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/enescakir/emoji"
 	"github.com/gimlet-io/gimlet-stack/template"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
@@ -43,6 +45,11 @@ func generate(c *cli.Context) error {
 		return fmt.Errorf("cannot parse stack config file: %s", err.Error())
 	}
 
+	err = lockVersionIfNotLocked(stackConfig, stackConfigPath)
+	if err != nil {
+		return fmt.Errorf("stack version was not locked, and we couldn't lock it: %s", err.Error())
+	}
+
 	files, err := template.GenerateFromStackYaml(stackConfig)
 	if err != nil {
 		return fmt.Errorf("cannot parse stack config file: %s", err.Error())
@@ -58,6 +65,36 @@ func generate(c *cli.Context) error {
 		err = ioutil.WriteFile(filepath.Join(targetPath, path), []byte(content), 0664)
 		if err != nil {
 			return fmt.Errorf("cannot write stack: %s", err.Error())
+		}
+	}
+
+	fmt.Fprintf(os.Stderr, "%v  Generated\n", emoji.CheckMark)
+
+	return nil
+}
+
+func lockVersionIfNotLocked(stackConfig template.StackConfig, stackConfigPath string) error {
+	locked, err := template.IsVersionLocked(stackConfig)
+	if err != nil {
+		return fmt.Errorf("cannot check version: %s", err.Error())
+	}
+	if !locked {
+		latestTag, _ := template.LatestVersion(stackConfig.Stack.Repository)
+		if latestTag != "" {
+			stackConfig.Stack.Repository = stackConfig.Stack.Repository + "?tag=" + latestTag
+
+			updatedStackConfigBuffer := bytes.NewBufferString("")
+			e := yaml.NewEncoder(updatedStackConfigBuffer)
+			e.SetIndent(2)
+			e.Encode(stackConfig)
+
+			updatedStackConfigString := "---\n" + updatedStackConfigBuffer.String()
+			err = ioutil.WriteFile(stackConfigPath, []byte(updatedStackConfigString), 0666)
+			if err != nil {
+				return fmt.Errorf("cannot write stack file %s", err)
+			}
+
+			fmt.Fprintf(os.Stderr, "%v  Stack version is locked to %s \n\n", emoji.Warning, latestTag)
 		}
 	}
 
