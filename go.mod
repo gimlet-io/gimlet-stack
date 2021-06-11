@@ -7,6 +7,7 @@ require (
 	github.com/MichaelMure/go-term-markdown v0.1.4 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/enescakir/emoji v1.0.0
+	github.com/epiclabs-io/diff3 v0.0.0-20181217103619-05282cece609 // indirect
 	github.com/fluxcd/source-controller v0.13.1
 	github.com/franela/goblin v0.0.0-20200105215937-c9ffbefa60db // indirect
 	github.com/gimlet-io/gimlet-cli v0.8.0-rc1.0.20210428134552-eff0760ce3f3
