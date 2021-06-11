@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	markdown "github.com/MichaelMure/go-term-markdown"
 	"github.com/enescakir/emoji"
 	"github.com/gimlet-io/gimlet-stack/template"
 	"github.com/urfave/cli/v2"
@@ -70,7 +71,22 @@ func generate(c *cli.Context) error {
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, "%v  Generated\n", emoji.CheckMark)
+	fmt.Fprintf(os.Stderr, "\n%v  Generated\n\n", emoji.CheckMark)
+
+	stackDefinitionYaml, err := template.StackDefinitionFromRepo(stackConfig.Stack.Repository)
+	if err != nil {
+		return fmt.Errorf("cannot get stack definition: %s", err.Error())
+	}
+	var stackDefinition template.StackDefinition
+	err = yaml.Unmarshal([]byte(stackDefinitionYaml), &stackDefinition)
+	if err != nil {
+		return fmt.Errorf("cannot parse stack definition: %s", err.Error())
+	}
+
+	if stackDefinition.ChangLog != "" {
+		message := markdown.Render(stackDefinition.Message, 80, 6)
+		fmt.Fprintf(os.Stderr, "%s\n", message)
+	}
 
 	return nil
 }
