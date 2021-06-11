@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	markdown "github.com/MichaelMure/go-term-markdown"
 	"github.com/enescakir/emoji"
 	"github.com/gimlet-io/gimlet-stack/template"
 	"github.com/urfave/cli/v2"
@@ -19,12 +20,12 @@ var GenerateCmd = cli.Command{
 	Action:    generate,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     "config",
-			Aliases:  []string{"c"},
+			Name:    "config",
+			Aliases: []string{"c"},
 		},
 		&cli.StringFlag{
-			Name:     "target-path",
-			Aliases:  []string{"p"},
+			Name:    "target-path",
+			Aliases: []string{"p"},
 		},
 	},
 }
@@ -47,8 +48,10 @@ func generate(c *cli.Context) error {
 
 	err = lockVersionIfNotLocked(stackConfig, stackConfigPath)
 	if err != nil {
-		return fmt.Errorf("stack version was not locked, and we couldn't lock it: %s", err.Error())
+		return fmt.Errorf("couldn't lock stack version: %s", err.Error())
 	}
+
+	checkForUpdates(stackConfig)
 
 	files, err := template.GenerateFromStackYaml(stackConfig)
 	if err != nil {
@@ -68,9 +71,38 @@ func generate(c *cli.Context) error {
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, "%v  Generated\n", emoji.CheckMark)
+	fmt.Fprintf(os.Stderr, "\n%v  Generated\n\n", emoji.CheckMark)
+
+	stackDefinitionYaml, err := template.StackDefinitionFromRepo(stackConfig.Stack.Repository)
+	if err != nil {
+		return fmt.Errorf("cannot get stack definition: %s", err.Error())
+	}
+	var stackDefinition template.StackDefinition
+	err = yaml.Unmarshal([]byte(stackDefinitionYaml), &stackDefinition)
+	if err != nil {
+		return fmt.Errorf("cannot parse stack definition: %s", err.Error())
+	}
+
+	if stackDefinition.ChangLog != "" {
+		message := markdown.Render(stackDefinition.Message, 80, 6)
+		fmt.Fprintf(os.Stderr, "%s\n", message)
+	}
 
 	return nil
+}
+
+func checkForUpdates(stackConfig template.StackConfig) {
+	currentTagString := template.CurrentVersion(stackConfig.Stack.Repository)
+	if currentTagString != "" {
+		versionsSince, err := template.VersionsSince(stackConfig.Stack.Repository, currentTagString)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "\n%v  Cannot check for updates \n\n", emoji.Warning)
+		}
+
+		if len(versionsSince) > 0 {
+			fmt.Fprintf(os.Stderr, "\n%v  Stack update available. Run `stack update --check` for details. \n\n", emoji.Warning)
+		}
+	}
 }
 
 func lockVersionIfNotLocked(stackConfig template.StackConfig, stackConfigPath string) error {
