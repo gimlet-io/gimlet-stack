@@ -13,6 +13,15 @@ Logging, metrics, ingress and more - delivered with gitops.
 
 > Gimlet Stack is an open-source relaunch of the 1clickinfra.com service
 
+## Installation
+
+```
+curl -L https://github.com/gimlet-io/gimlet-stack/releases/download/v0.2.0/stack-$(uname)-$(uname -m) -o stack
+chmod +x stack
+sudo mv ./stack /usr/local/bin/stack
+stack --version
+```
+
 ## Documentation
 
 https://gimlet.io/gimlet-stack/getting-started/
