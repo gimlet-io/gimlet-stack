@@ -40,6 +40,7 @@ type StackDefinition struct {
 	Intro       string        `json:"intro,omitempty" yaml:"intro"`
 	Categories  []interface{} `json:"categories" yaml:"categories"`
 	Components  []*Component  `json:"components,omitempty" yaml:"components"`
+	ChangLog    string        `json:"changeLog,omitempty" yaml:"changeLog"`
 }
 
 func StackDefinitionFromRepo(repoUrl string) (string, error) {
