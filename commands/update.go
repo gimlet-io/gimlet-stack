@@ -53,7 +53,7 @@ func update(c *cli.Context) error {
 	}
 
 	if len(versionsSince) == 0 {
-		fmt.Fprintf(os.Stderr, "%v  Already up to date \n\n", emoji.CheckMark)
+		fmt.Fprintf(os.Stderr, "\n%v  Already up to date \n\n", emoji.CheckMark)
 		return nil
 	}
 
@@ -69,22 +69,14 @@ func update(c *cli.Context) error {
 		if latestTag != "" {
 			fmt.Fprintf(os.Stderr, "%v  Stack version is updating to %s... \n\n", emoji.HourglassNotDone, latestTag)
 			stackConfig.Stack.Repository = template.RepoUrlWithoutVersion(stackConfig.Stack.Repository) + "?tag=" + latestTag
-
-			updatedStackConfigBuffer := bytes.NewBufferString("")
-			e := yaml.NewEncoder(updatedStackConfigBuffer)
-			e.SetIndent(2)
-			e.Encode(stackConfig)
-
-			updatedStackConfigString := "---\n" + updatedStackConfigBuffer.String()
-			err = ioutil.WriteFile(stackConfigPath, []byte(updatedStackConfigString), 0666)
+			err = writeStackConfig(stackConfig, stackConfigPath)
 			if err != nil {
 				return fmt.Errorf("cannot write stack file %s", err)
 			}
-
-			fmt.Fprintf(os.Stderr, "%v   Updated.\n\n", emoji.CheckMark)
+			fmt.Fprintf(os.Stderr, "%v   Config updated. \n\n", emoji.CheckMark)
 			fmt.Fprintf(os.Stderr, "%v   Run `stack generate` to render resources with the updated stack. \n\n", emoji.Warning)
 			fmt.Fprintf(os.Stderr, "%v  Change log:\n\n", emoji.Books)
-			err := printChangeLog(stackConfig, versionsSince)
+			err = printChangeLog(stackConfig, versionsSince)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "\n%v %s \n\n", emoji.Warning, err)
 			}
@@ -95,6 +87,16 @@ func update(c *cli.Context) error {
 	}
 
 	return nil
+}
+
+func writeStackConfig(stackConfig template.StackConfig, stackConfigPath string) error {
+	updatedStackConfigBuffer := bytes.NewBufferString("")
+	e := yaml.NewEncoder(updatedStackConfigBuffer)
+	e.SetIndent(2)
+	e.Encode(stackConfig)
+
+	updatedStackConfigString := "---\n" + updatedStackConfigBuffer.String()
+	return ioutil.WriteFile(stackConfigPath, []byte(updatedStackConfigString), 0666)
 }
 
 func printChangeLog(stackConfig template.StackConfig, versions []string) error {
