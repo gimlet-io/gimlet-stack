@@ -186,15 +186,29 @@ func loadStackFromFS(root string) (map[string]string, error) {
 		root = root + "/"
 	}
 
-	files := map[string]string{}
+	var stackIgnorePatterns []gitignore.Pattern
+	stackIgnoreFile := filepath.Join(root, ".stackignore")
+	_, err := os.Stat(stackIgnoreFile)
+	if err == nil {
+		if f, err := os.Open(stackIgnoreFile); err == nil {
+			defer f.Close()
+			stackIgnorePatterns = sourceignore.ReadPatterns(f, []string{})
+		} else {
+			return nil, fmt.Errorf("cannot read .stackignore file: %s", err)
+		}
+	}
 
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	ignore := gitignore.NewMatcher(stackIgnorePatterns)
+
+	files := map[string]string{}
+	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		path = strings.TrimPrefix(path, root)
 		if info.IsDir() {
 			return nil
 		}
-		if strings.HasPrefix(path, "assets/") ||
-			strings.HasPrefix(path, ".git/") {
+
+
+		if ignore.Match(strings.Split(path, "/"), false) {
 			return nil
 		}
 

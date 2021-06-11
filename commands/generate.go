@@ -55,7 +55,7 @@ func generate(c *cli.Context) error {
 
 	files, err := template.GenerateFromStackYaml(stackConfig)
 	if err != nil {
-		return fmt.Errorf("cannot parse stack config file: %s", err.Error())
+		return fmt.Errorf("cannot generate stack: %s", err.Error())
 	}
 
 	targetPath := c.String("target-path")
