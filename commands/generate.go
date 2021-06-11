@@ -3,7 +3,6 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"github.com/blang/semver/v4"
 	"github.com/enescakir/emoji"
 	"github.com/gimlet-io/gimlet-stack/template"
 	"github.com/urfave/cli/v2"
@@ -11,7 +10,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 var GenerateCmd = cli.Command{
@@ -21,12 +19,12 @@ var GenerateCmd = cli.Command{
 	Action:    generate,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     "config",
-			Aliases:  []string{"c"},
+			Name:    "config",
+			Aliases: []string{"c"},
 		},
 		&cli.StringFlag{
-			Name:     "target-path",
-			Aliases:  []string{"p"},
+			Name:    "target-path",
+			Aliases: []string{"p"},
 		},
 	},
 }
@@ -80,21 +78,13 @@ func generate(c *cli.Context) error {
 func checkForUpdates(stackConfig template.StackConfig) {
 	currentTagString := template.CurrentVersion(stackConfig.Stack.Repository)
 	if currentTagString != "" {
-		latestTagString, _ := template.LatestVersion(stackConfig.Stack.Repository)
-		if latestTagString != "" {
-			currentTagWithoutV := strings.TrimPrefix(currentTagString, "v")
-			latestTagWithoutV := strings.TrimPrefix(latestTagString, "v")
+		versionsSince, err := template.VersionsSince(stackConfig.Stack.Repository, currentTagString)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "\n%v  Cannot check for updates \n\n", emoji.Warning)
+		}
 
-			currentTag, err := semver.Make(currentTagWithoutV)
-			latestTag, err2 := semver.Make(latestTagWithoutV)
-
-			if err != nil || err2 != nil {
-				return
-			}
-
-			if currentTag.Compare(latestTag) == -1 {
-				fmt.Fprintf(os.Stderr, "\n%v  Stack update available. Run `stack update --check` for details. \n\n", emoji.Warning)
-			}
+		if len(versionsSince) > 0 {
+			fmt.Fprintf(os.Stderr, "\n%v  Stack update available. Run `stack update --check` for details. \n\n", emoji.Warning)
 		}
 	}
 }

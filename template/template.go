@@ -285,6 +285,57 @@ func LatestVersion(repoURL string) (string, error) {
 	return latestTagString, nil
 }
 
+func VersionsSince(repoURL string, sinceString string) ([]string, error) {
+	gitAddress, err := giturl.ParseScp(repoURL)
+	if err != nil {
+		return []string{}, fmt.Errorf("cannot parse stacks's git address: %s", err)
+	}
+	gitUrl := strings.ReplaceAll(repoURL, gitAddress.RawQuery, "")
+	gitUrl = strings.ReplaceAll(gitUrl, "?", "")
+
+	fs := memfs.New()
+	opts := &git.CloneOptions{
+		URL: gitUrl,
+	}
+	repo, err := git.Clone(memory.NewStorage(), fs, opts)
+	if err != nil {
+		return []string{}, fmt.Errorf("cannot clone: %s", err)
+	}
+
+	tagRefs, err := repo.Tags()
+	if err != nil {
+		return []string{}, fmt.Errorf("cannot get tags: %s", err)
+	}
+
+	sinceStringWithoutV := strings.TrimPrefix(sinceString, "v")
+	since, err := semver.Make(sinceStringWithoutV)
+	if err != nil {
+		return []string{}, err
+	}
+
+	tagsSince := []string{}
+	err = tagRefs.ForEach(func(tagRef *plumbing.Reference) error {
+		tagString := strings.TrimPrefix(string(tagRef.Name()), "refs/tags/")
+		tagStringWithoutV := strings.TrimPrefix(tagString, "v")
+
+		tag, err := semver.Make(tagStringWithoutV)
+		if err != nil {
+			return err
+		}
+
+		if since.Compare(tag) == -1 {
+			tagsSince = append(tagsSince, tagString)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return []string{}, err
+	}
+
+	return tagsSince, nil
+}
+
 func CurrentVersion(repoURL string) string {
 	gitAddress, err := giturl.ParseScp(repoURL)
 	if err != nil {
