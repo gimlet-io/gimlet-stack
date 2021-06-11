@@ -57,7 +57,7 @@ func generate(c *cli.Context) error {
 	oldStackConfigPath := filepath.Join(filepath.Dir(stackConfigPath), ".stack", "old")
 	oldStackConfig, err := readStackConfig(oldStackConfigPath)
 	if err != nil {
-		return err
+		oldStackConfig = stackConfig
 	}
 	previousGenerationFiles, err := template.GenerateFromStackYaml(oldStackConfig)
 	if err != nil {
