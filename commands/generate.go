@@ -119,16 +119,11 @@ func writeFilesAndPreserveCustomChanges(
 	targetPath string,
 ) error {
 	for path, updated := range generatedFiles {
-		err := os.MkdirAll(filepath.Dir(path), 0775)
-		if err != nil {
-			return fmt.Errorf("cannot write stack: %s", err.Error())
-		}
-
-		path = filepath.Join(targetPath, path)
+		physicalPath := filepath.Join(targetPath, path)
 
 		var existingContent string
-		if _, err := os.Stat(path); err == nil {
-			existingContentBytes, err := os.ReadFile(path)
+		if _, err := os.Stat(physicalPath); err == nil {
+			existingContentBytes, err := os.ReadFile(physicalPath)
 			if err != nil {
 				return fmt.Errorf("cannot read file %s: %s", path, err.Error())
 			}
@@ -140,22 +135,31 @@ func writeFilesAndPreserveCustomChanges(
 			baseline = val
 		}
 
-		merged, err := diff3.Merge(strings.NewReader(existingContent), strings.NewReader(baseline), strings.NewReader(updated), true, "Your custom settings", "From stack generate")
-		if err != nil {
-			return fmt.Errorf("cannot merge %s: %s", path, err.Error())
-		}
-		mergedBuffer := new(strings.Builder)
-		_, err = io.Copy(mergedBuffer, merged.Result)
-		if err != nil {
-			return fmt.Errorf("cannot merge %s: %s", path, err.Error())
+		var mergedString string
+		if existingContent != "" {
+			merged, err := diff3.Merge(strings.NewReader(existingContent), strings.NewReader(baseline), strings.NewReader(updated), true, "Your custom settings", "From stack generate")
+			if err != nil {
+				return fmt.Errorf("cannot merge %s: %s", path, err.Error())
+			}
+			mergedBuffer := new(strings.Builder)
+			_, err = io.Copy(mergedBuffer, merged.Result)
+			if err != nil {
+				return fmt.Errorf("cannot merge %s: %s", path, err.Error())
+			}
+
+			mergedString = mergedBuffer.String()
+			if !strings.HasSuffix(mergedString, "\n") {
+				mergedString = mergedString + "\n"
+			}
+		} else {
+			mergedString = updated
 		}
 
-		mergedString := mergedBuffer.String()
-		if !strings.HasSuffix(mergedString, "\n") {
-			mergedString = mergedString + "\n"
+		err := os.MkdirAll(filepath.Dir(physicalPath), 0775)
+		if err != nil {
+			return fmt.Errorf("cannot write stack: %s", err.Error())
 		}
-
-		err = ioutil.WriteFile(path, []byte(mergedString), 0664)
+		err = ioutil.WriteFile(physicalPath, []byte(mergedString), 0664)
 		if err != nil {
 			return fmt.Errorf("cannot write stack: %s", err.Error())
 		}
