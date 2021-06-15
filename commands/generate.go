@@ -75,7 +75,7 @@ func generate(c *cli.Context) error {
 		return fmt.Errorf("cannot write old stack config: %s", err.Error())
 	}
 
-	fmt.Fprintf(os.Stderr, "\n%v  Generated\n\n", emoji.CheckMark)
+	fmt.Printf("\n%v  Generated\n\n", emoji.CheckMark)
 
 	stackDefinitionYaml, err := template.StackDefinitionFromRepo(stackConfig.Stack.Repository)
 	if err != nil {
@@ -89,7 +89,7 @@ func generate(c *cli.Context) error {
 
 	if stackDefinition.ChangLog != "" {
 		message := markdown.Render(stackDefinition.Message, 80, 6)
-		fmt.Fprintf(os.Stderr, "%s\n", message)
+		fmt.Printf("%s\n", message)
 	}
 
 	return nil
@@ -181,11 +181,11 @@ func checkForUpdates(stackConfig template.StackConfig) {
 	if currentTagString != "" {
 		versionsSince, err := template.VersionsSince(stackConfig.Stack.Repository, currentTagString)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "\n%v  Cannot check for updates \n\n", emoji.Warning)
+			fmt.Printf("\n%v  Cannot check for updates \n\n", emoji.Warning)
 		}
 
 		if len(versionsSince) > 0 {
-			fmt.Fprintf(os.Stderr, "\n%v  Stack update available. Run `stack update --check` for details. \n\n", emoji.Warning)
+			fmt.Printf("\n%v  Stack update available. Run `stack update --check` for details. \n\n", emoji.Warning)
 		}
 	}
 }
@@ -211,7 +211,7 @@ func lockVersionIfNotLocked(stackConfig template.StackConfig, stackConfigPath st
 				return fmt.Errorf("cannot write stack file %s", err)
 			}
 
-			fmt.Fprintf(os.Stderr, "%v  Stack version is locked to %s \n\n", emoji.Warning, latestTag)
+			fmt.Printf("%v  Stack version is locked to %s \n\n", emoji.Warning, latestTag)
 		}
 	}
 

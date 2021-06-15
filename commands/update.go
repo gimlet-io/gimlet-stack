@@ -9,7 +9,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
-	"os"
 )
 
 var UpdateCmd = cli.Command{
@@ -49,40 +48,40 @@ func update(c *cli.Context) error {
 	currentTagString := template.CurrentVersion(stackConfig.Stack.Repository)
 	versionsSince, err := template.VersionsSince(stackConfig.Stack.Repository, currentTagString)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "\n%v  Cannot check for updates \n\n", emoji.Warning)
+		fmt.Printf("\n%v  Cannot check for updates \n\n", emoji.Warning)
 	}
 
 	if len(versionsSince) == 0 {
-		fmt.Fprintf(os.Stderr, "\n%v  Already up to date \n\n", emoji.CheckMark)
+		fmt.Printf("\n%v  Already up to date \n\n", emoji.CheckMark)
 		return nil
 	}
 
 	if check {
-		fmt.Fprintf(os.Stderr, "%v  New version available: \n\n", emoji.Books)
+		fmt.Printf("%v  New version available: \n\n", emoji.Books)
 		err := printChangeLog(stackConfig, versionsSince)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "\n%v %s \n\n", emoji.Warning, err)
+			fmt.Printf("\n%v %s \n\n", emoji.Warning, err)
 		}
-		fmt.Fprintf(os.Stderr, "\n")
+		fmt.Printf("\n")
 	} else {
 		latestTag, _ := template.LatestVersion(stackConfig.Stack.Repository)
 		if latestTag != "" {
-			fmt.Fprintf(os.Stderr, "%v  Stack version is updating to %s... \n\n", emoji.HourglassNotDone, latestTag)
+			fmt.Printf("%v  Stack version is updating to %s... \n\n", emoji.HourglassNotDone, latestTag)
 			stackConfig.Stack.Repository = template.RepoUrlWithoutVersion(stackConfig.Stack.Repository) + "?tag=" + latestTag
 			err = writeStackConfig(stackConfig, stackConfigPath)
 			if err != nil {
 				return fmt.Errorf("cannot write stack file %s", err)
 			}
-			fmt.Fprintf(os.Stderr, "%v   Config updated. \n\n", emoji.CheckMark)
-			fmt.Fprintf(os.Stderr, "%v   Run `stack generate` to render resources with the updated stack. \n\n", emoji.Warning)
-			fmt.Fprintf(os.Stderr, "%v  Change log:\n\n", emoji.Books)
+			fmt.Printf("%v   Config updated. \n\n", emoji.CheckMark)
+			fmt.Printf("%v   Run `stack generate` to render resources with the updated stack. \n\n", emoji.Warning)
+			fmt.Printf("%v  Change log:\n\n", emoji.Books)
 			err = printChangeLog(stackConfig, versionsSince)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "\n%v %s \n\n", emoji.Warning, err)
+				fmt.Printf("\n%v %s \n\n", emoji.Warning, err)
 			}
-			fmt.Fprintf(os.Stderr, "\n")
+			fmt.Printf("\n")
 		} else {
-			fmt.Fprintf(os.Stderr, "%v  cannot find latest version\n", emoji.CrossMark)
+			fmt.Printf("%v  cannot find latest version\n", emoji.CrossMark)
 		}
 	}
 
@@ -101,7 +100,7 @@ func writeStackConfig(stackConfig template.StackConfig, stackConfigPath string) 
 
 func printChangeLog(stackConfig template.StackConfig, versions []string) error {
 	for _, version := range versions {
-		fmt.Fprintf(os.Stderr, "   - %s \n", version)
+		fmt.Printf("   - %s \n", version)
 
 		repoUrl := stackConfig.Stack.Repository
 		repoUrl = template.RepoUrlWithoutVersion(repoUrl)
@@ -119,7 +118,7 @@ func printChangeLog(stackConfig template.StackConfig, versions []string) error {
 
 		if stackDefinition.ChangLog != "" {
 			changeLog := markdown.Render(stackDefinition.ChangLog, 80, 6)
-			fmt.Fprintf(os.Stderr, "%s\n", changeLog)
+			fmt.Printf("%s\n", changeLog)
 		}
 	}
 
