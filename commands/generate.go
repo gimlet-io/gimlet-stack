@@ -26,10 +26,6 @@ var GenerateCmd = cli.Command{
 			Name:    "config",
 			Aliases: []string{"c"},
 		},
-		&cli.StringFlag{
-			Name:    "target-path",
-			Aliases: []string{"p"},
-		},
 	},
 }
 
@@ -64,7 +60,7 @@ func generate(c *cli.Context) error {
 		return fmt.Errorf("cannot generate stack: %s", err.Error())
 	}
 
-	targetPath := c.String("target-path")
+	targetPath := filepath.Dir(stackConfigPath)
 	err = writeFilesAndPreserveCustomChanges(
 		previousGenerationFiles,
 		generatedFiles,
