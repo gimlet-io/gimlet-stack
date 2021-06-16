@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	markdown "github.com/MichaelMure/go-term-markdown"
 	"github.com/enescakir/emoji"
@@ -23,6 +24,11 @@ var UpdateCmd = cli.Command{
 		},
 		&cli.BoolFlag{
 			Name: "check",
+		},
+		&cli.StringFlag{
+			Name:    "output",
+			Aliases: []string{"o"},
+			Usage:   "output format, eg.: json",
 		},
 	},
 }
@@ -51,18 +57,48 @@ func update(c *cli.Context) error {
 		fmt.Printf("\n%v  Cannot check for updates \n\n", emoji.Warning)
 	}
 
+	jsonOutput := c.String("output") == "json"
+
 	if len(versionsSince) == 0 {
-		fmt.Printf("\n%v  Already up to date \n\n", emoji.CheckMark)
-		return nil
+		if jsonOutput {
+			updateStr := bytes.NewBufferString("")
+			e := json.NewEncoder(updateStr)
+			e.SetIndent("", "  ")
+			err = e.Encode(map[string]string{
+				"status": "Already up to date",
+			})
+			if err != nil {
+				return fmt.Errorf("cannot deserialize update status %s", err)
+			}
+			fmt.Println(updateStr)
+		} else {
+			fmt.Printf("\n%v  Already up to date \n\n", emoji.CheckMark)
+			return nil
+		}
 	}
 
 	if check {
-		fmt.Printf("%v  New version available: \n\n", emoji.Books)
-		err := printChangeLog(stackConfig, versionsSince)
-		if err != nil {
-			fmt.Printf("\n%v %s \n\n", emoji.Warning, err)
+		if jsonOutput {
+			updateStr := bytes.NewBufferString("")
+			e := json.NewEncoder(updateStr)
+			e.SetIndent("", "  ")
+			err = e.Encode(map[string]string{
+				"status": "Update available",
+				"currentVersion": currentTagString,
+				"latestVersion":  versionsSince[0],
+			})
+			if err != nil {
+				return fmt.Errorf("cannot deserialize update status %s", err)
+			}
+			fmt.Println(updateStr)
+		} else {
+			fmt.Printf("%v  New version available: \n\n", emoji.Books)
+			err := printChangeLog(stackConfig, versionsSince)
+			if err != nil {
+				fmt.Printf("\n%v %s \n\n", emoji.Warning, err)
+			}
+			fmt.Printf("\n")
 		}
-		fmt.Printf("\n")
 	} else {
 		latestTag, _ := template.LatestVersion(stackConfig.Stack.Repository)
 		if latestTag != "" {
