@@ -52,6 +52,10 @@ func update(c *cli.Context) error {
 	check := c.Bool("check")
 
 	currentTagString := template.CurrentVersion(stackConfig.Stack.Repository)
+	latestTag, _ := template.LatestVersion(stackConfig.Stack.Repository)
+	if latestTag == "" {
+		fmt.Printf("%v  cannot find latest version\n", emoji.CrossMark)
+	}
 	versionsSince, err := template.VersionsSince(stackConfig.Stack.Repository, currentTagString)
 	if err != nil {
 		fmt.Printf("\n%v  Cannot check for updates \n\n", emoji.Warning)
@@ -83,9 +87,9 @@ func update(c *cli.Context) error {
 			e := json.NewEncoder(updateStr)
 			e.SetIndent("", "  ")
 			err = e.Encode(map[string]string{
-				"status": "Update available",
+				"status":         "Update available",
 				"currentVersion": currentTagString,
-				"latestVersion":  versionsSince[0],
+				"latestVersion":  latestTag,
 			})
 			if err != nil {
 				return fmt.Errorf("cannot deserialize update status %s", err)
@@ -100,25 +104,20 @@ func update(c *cli.Context) error {
 			fmt.Printf("\n")
 		}
 	} else {
-		latestTag, _ := template.LatestVersion(stackConfig.Stack.Repository)
-		if latestTag != "" {
-			fmt.Printf("%v  Stack version is updating to %s... \n\n", emoji.HourglassNotDone, latestTag)
-			stackConfig.Stack.Repository = template.RepoUrlWithoutVersion(stackConfig.Stack.Repository) + "?tag=" + latestTag
-			err = writeStackConfig(stackConfig, stackConfigPath)
-			if err != nil {
-				return fmt.Errorf("cannot write stack file %s", err)
-			}
-			fmt.Printf("%v   Config updated. \n\n", emoji.CheckMark)
-			fmt.Printf("%v   Run `stack generate` to render resources with the updated stack. \n\n", emoji.Warning)
-			fmt.Printf("%v  Change log:\n\n", emoji.Books)
-			err = printChangeLog(stackConfig, versionsSince)
-			if err != nil {
-				fmt.Printf("\n%v %s \n\n", emoji.Warning, err)
-			}
-			fmt.Printf("\n")
-		} else {
-			fmt.Printf("%v  cannot find latest version\n", emoji.CrossMark)
+		fmt.Printf("%v  Stack version is updating to %s... \n\n", emoji.HourglassNotDone, latestTag)
+		stackConfig.Stack.Repository = template.RepoUrlWithoutVersion(stackConfig.Stack.Repository) + "?tag=" + latestTag
+		err = writeStackConfig(stackConfig, stackConfigPath)
+		if err != nil {
+			return fmt.Errorf("cannot write stack file %s", err)
 		}
+		fmt.Printf("%v   Config updated. \n\n", emoji.CheckMark)
+		fmt.Printf("%v   Run `stack generate` to render resources with the updated stack. \n\n", emoji.Warning)
+		fmt.Printf("%v  Change log:\n\n", emoji.Books)
+		err = printChangeLog(stackConfig, versionsSince)
+		if err != nil {
+			fmt.Printf("\n%v %s \n\n", emoji.Warning, err)
+		}
+		fmt.Printf("\n")
 	}
 
 	return nil
