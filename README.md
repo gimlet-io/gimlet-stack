@@ -26,6 +26,9 @@ stack --version
 
 https://gimlet.io/gimlet-stack/getting-started/
 
+This repo is only the tooling that delivers stacks.
+If you are interested of the source of our reference stack, visit https://github.com/gimlet-io/gimlet-stack-reference
+
 ## Community
 
 Gimlet Stack is developed in the open.
