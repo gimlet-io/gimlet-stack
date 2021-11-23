@@ -114,7 +114,7 @@ func writeFilesAndPreserveCustomChanges(
 	generatedFiles map[string]string,
 	targetPath string,
 ) error {
-	for path, updated := range generatedFiles {
+	for path, updated := range generatedFiles { // write new or update existing files
 		physicalPath := filepath.Join(targetPath, path)
 
 		var existingContent string
@@ -158,6 +158,16 @@ func writeFilesAndPreserveCustomChanges(
 		err = ioutil.WriteFile(physicalPath, []byte(mergedString), 0664)
 		if err != nil {
 			return fmt.Errorf("cannot write stack: %s", err.Error())
+		}
+	}
+
+	for path, _ := range previousGenerationFiles { // delete missing files
+		if _, ok := generatedFiles[path]; !ok {
+			physicalPath := filepath.Join(targetPath, path)
+			err := os.Remove(physicalPath)
+			if err != nil {
+				return fmt.Errorf("cannot clean up file: %s", err.Error())
+			}
 		}
 	}
 
