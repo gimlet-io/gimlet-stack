@@ -132,6 +132,16 @@ func cloneStackFromRepo(repoURL string) (map[string]string, error) {
 		return nil, fmt.Errorf("cannot list files: %s", err)
 	}
 	paths = append(paths, paths2...)
+	paths3, err := util.Glob(worktree.Filesystem, "*/*/*")
+	if err != nil {
+		return nil, fmt.Errorf("cannot list files: %s", err)
+	}
+	paths = append(paths, paths3...)
+	paths4, err := util.Glob(worktree.Filesystem, "*/*/*/*")
+	if err != nil {
+		return nil, fmt.Errorf("cannot list files: %s", err)
+	}
+	paths = append(paths, paths4...)
 
 	fs = worktree.Filesystem
 
