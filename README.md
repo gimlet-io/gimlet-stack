@@ -16,7 +16,7 @@ Logging, metrics, ingress and more - delivered with gitops.
 ## Installation
 
 ```
-curl -L https://github.com/gimlet-io/gimlet-stack/releases/download/v0.3.5/stack-$(uname)-$(uname -m) -o stack
+curl -L https://github.com/gimlet-io/gimlet-stack/releases/download/v0.4.0/stack-$(uname)-$(uname -m) -o stack
 chmod +x stack
 sudo mv ./stack /usr/local/bin/stack
 stack --version
@@ -33,7 +33,7 @@ If you are interested in the source of our reference stack, visit https://github
 
 Gimlet Stack is developed in the open.
 
-Please check the [v0.3.5](https://github.com/gimlet-io/gimlet-stack/projects/2) project and see if you are interested to help.
+Please check the [v0.4.0](https://github.com/gimlet-io/gimlet-stack/projects/2) project and see if you are interested to help.
 
 You can talk to us at our Discord server: https://discord.gg/VdQrdqwReB
 
