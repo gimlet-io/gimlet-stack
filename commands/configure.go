@@ -3,13 +3,14 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
 	"github.com/enescakir/emoji"
 	"github.com/gimlet-io/gimlet-stack/template"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 )
 
 var ConfigureCmd = cli.Command{
@@ -25,6 +26,9 @@ var ConfigureCmd = cli.Command{
 		&cli.StringFlag{
 			Name:    "stack-repo",
 			Aliases: []string{"r"},
+		},
+		&cli.StringFlag{
+			Name: "stack-definition",
 		},
 	},
 }
@@ -74,10 +78,21 @@ func configure(c *cli.Context) error {
 
 	checkForUpdates(stackConfig)
 
-	stackDefinitionYaml, err := template.StackDefinitionFromRepo(stackConfig.Stack.Repository)
-	if err != nil {
-		return fmt.Errorf("cannot get stack definition: %s", err.Error())
+	var stackDefinitionYaml string
+
+	if c.String("stack-definiton") != "" {
+		stackDefinitionYamlBytes, err := ioutil.ReadFile(c.String("stack-definiton"))
+		if err != nil {
+			return fmt.Errorf("cannot read stack definition file: %s", err.Error())
+		}
+		stackDefinitionYaml = string(stackDefinitionYamlBytes)
+	} else {
+		stackDefinitionYaml, err = template.StackDefinitionFromRepo(stackConfig.Stack.Repository)
+		if err != nil {
+			return fmt.Errorf("cannot get stack definition: %s", err.Error())
+		}
 	}
+
 	var stackDefinition template.StackDefinition
 	err = yaml.Unmarshal([]byte(stackDefinitionYaml), &stackDefinition)
 	if err != nil {

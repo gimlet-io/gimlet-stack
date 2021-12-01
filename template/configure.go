@@ -4,13 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/enescakir/emoji"
-	"github.com/gimlet-io/gimlet-cli/commands/chart/ws"
-	"github.com/gimlet-io/gimlet-stack/template/web"
-	"github.com/gimlet-io/gimlet-stack/version"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/cors"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -21,6 +14,14 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/enescakir/emoji"
+	"github.com/gimlet-io/gimlet-cli/commands/chart/ws"
+	"github.com/gimlet-io/gimlet-stack/template/web"
+	"github.com/gimlet-io/gimlet-stack/version"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 )
 
 type Component struct {
