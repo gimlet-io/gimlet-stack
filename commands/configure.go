@@ -80,8 +80,8 @@ func configure(c *cli.Context) error {
 
 	var stackDefinitionYaml string
 
-	if c.String("stack-definiton") != "" {
-		stackDefinitionYamlBytes, err := ioutil.ReadFile(c.String("stack-definiton"))
+	if c.String("stack-definition") != "" {
+		stackDefinitionYamlBytes, err := ioutil.ReadFile(c.String("stack-definition"))
 		if err != nil {
 			return fmt.Errorf("cannot read stack definition file: %s", err.Error())
 		}
