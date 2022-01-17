@@ -36,7 +36,7 @@
     "ajv": "^6.12.6",
     "and": "0.0.3",
     "autoprefixer": "^10.2.5",
-    "helm-react-ui": "github:gimlet-io/helm-react-ui#iteration",
+    "helm-react-ui": "github:gimlet-io/helm-react-ui",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "remarkable": "^2.0.1",
