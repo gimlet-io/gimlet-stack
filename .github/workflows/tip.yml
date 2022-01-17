@@ -45,7 +45,7 @@ jobs:
         VERSION: ${{ steps.sha_or_tag.outputs.version }}
 
     - name: tip
-      uses: eine/tip@master
+      uses: pyTooling/Actions/releaser@main
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         rm: true
