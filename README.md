@@ -1,4 +1,4 @@
-**ARCHIVED
+**ARCHIVED**
 
 **Merged into the https://github.com/gimlet-io/gimlet-cli project. The `stack` command can be called with `gimlet stack` command in the future.**
 
